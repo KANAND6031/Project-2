@@ -1,0 +1,41 @@
+# Environment and secrets
+.env
+.env.local
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# C++ Build artifacts
+analyzer/bin/
+analyzer/build/
+analyzer/cmake-build-*/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.dylib
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# Frontend build
+frontend/dist/
+frontend/node_modules/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Test outputs
+coverage/
+tmp/
+scratch/

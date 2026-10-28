@@ -1,0 +1,4 @@
+# Ignore temporary working directories
+temp/
+*.log
+secrets.js

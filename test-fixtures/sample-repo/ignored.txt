@@ -1,0 +1,1 @@
+This is plain text documentation, not a source code file. It should be skipped by the code analyzer.
