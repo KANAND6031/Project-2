@@ -6,6 +6,7 @@
 #include <map>
 #include <set>
 #include <cstdint>
+#include "ast_parser.hpp"
 
 namespace codeinsight {
 
@@ -37,6 +38,9 @@ struct FileMetrics {
     size_t maxLineLength = 0;
     bool hasLongLines = false;     // True if any line exceeds minification threshold
     uint64_t fileSizeBytes = 0;
+
+    // Phase 3 AST metrics
+    FileComplexitySummary complexity;
 };
 
 // Information about a file that was skipped
@@ -60,6 +64,12 @@ struct ScanSummary {
     size_t errorCount = 0;
     std::map<std::string, size_t> filesByLanguage;
     std::map<std::string, size_t> linesByLanguage;
+
+    // Phase 3 AST complexity aggregate metrics
+    size_t totalFunctions = 0;
+    double averageComplexity = 0.0;
+    size_t maxComplexity = 0;
+    size_t highComplexityFunctionCount = 0;
 };
 
 // Full scan result returned by the analyzer
@@ -109,6 +119,7 @@ public:
 
 private:
     ScanConfig config_;
+    AstParser astParser_;
     std::vector<std::string> gitignorePatterns_;
     std::set<std::string> visitedCanonicalPaths_; // Prevents symlink loops
 

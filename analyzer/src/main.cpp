@@ -7,7 +7,7 @@
 namespace {
 
 void printUsage(const char* progName) {
-    std::cout << "CodeInsight Analysis Engine (v1.1.0 - Phase 2)\n"
+    std::cout << "CodeInsight Analysis Engine (v1.2.0 - Phase 3 AST Engine)\n"
               << "Usage: " << progName << " --repo <repository_path> [options]\n\n"
               << "Options:\n"
               << "  --repo <path>          Target repository directory to analyze (required)\n"

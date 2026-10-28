@@ -85,7 +85,6 @@ bool simpleWildcardMatch(const std::string& pattern, const std::string& text) {
     if (pattern.empty()) return text.empty();
     if (pattern == "*") return true;
 
-    // Pattern like *.ext
     if (pattern.rfind("*.", 0) == 0) {
         std::string suffix = pattern.substr(1);
         if (text.length() >= suffix.length()) {
@@ -94,7 +93,6 @@ bool simpleWildcardMatch(const std::string& pattern, const std::string& text) {
         return false;
     }
 
-    // Pattern like name*
     if (!pattern.empty() && pattern.back() == '*') {
         std::string prefix = pattern.substr(0, pattern.length() - 1);
         return text.rfind(prefix, 0) == 0;
@@ -136,18 +134,15 @@ bool DirectoryScanner::isBinaryFile(const std::string& filePath) {
     for (std::streamsize i = 0; i < bytesRead; ++i) {
         unsigned char byte = static_cast<unsigned char>(buffer[i]);
 
-        // Immediate indicator of binary file: null byte (\0)
         if (byte == '\0') {
             return true;
         }
 
-        // Allow tab (\t = 9), LF (\n = 10), CR (\r = 13)
         if (byte < 0x09 || (byte > 0x0D && byte < 0x20)) {
             nonPrintableCount++;
         }
     }
 
-    // If more than 30% of the sample bytes are non-printable control characters, treat as binary
     return (nonPrintableCount * 100 / static_cast<size_t>(bytesRead)) > 30;
 }
 
@@ -155,7 +150,6 @@ bool DirectoryScanner::isMinifiedOrGenerated(const std::string& fileName, size_t
     std::string lowerName = fileName;
     std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
 
-    // Common minified/bundle naming conventions
     if (lowerName.find(".min.") != std::string::npos ||
         lowerName.find(".bundle.") != std::string::npos ||
         lowerName.find(".min-") != std::string::npos ||
@@ -165,7 +159,6 @@ bool DirectoryScanner::isMinifiedOrGenerated(const std::string& fileName, size_t
         return true;
     }
 
-    // Heuristic: Source files with extreme line lengths without whitespace are minified
     if (maxLineLen > 1000) {
         return true;
     }
@@ -185,7 +178,6 @@ void DirectoryScanner::loadGitignore(const std::string& rootDirectory) {
         std::string pattern = trim(line);
         if (pattern.empty() || pattern[0] == '#') continue;
 
-        // Strip leading slash for relative matching
         if (pattern[0] == '/') pattern = pattern.substr(1);
         if (!pattern.empty()) {
             gitignorePatterns_.push_back(normalizePath(pattern));
@@ -205,17 +197,14 @@ bool DirectoryScanner::isGitignored(const std::string& relativePath) const {
             patClean.pop_back();
         }
 
-        // Exact match or prefix match
         if (normRel == patClean || normRel.rfind(patClean + "/", 0) == 0) {
             return true;
         }
 
-        // Wildcard match against basename or relative path
         if (simpleWildcardMatch(patClean, base) || simpleWildcardMatch(patClean, normRel)) {
             return true;
         }
 
-        // Folder match anywhere in path (e.g. pattern "temp" matches "sub/temp/file.cpp")
         size_t foundPos = normRel.find(patClean);
         if (foundPos != std::string::npos) {
             bool leftBoundary = (foundPos == 0 || normRel[foundPos - 1] == '/');
@@ -310,7 +299,6 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
         bool hasCodeOnLine = false;
         bool hasCommentOnLine = false;
 
-        // Lexical scan through line characters
         for (size_t i = 0; i < len; ++i) {
             char c = line[i];
             char nextC = (i + 1 < len) ? line[i + 1] : '\0';
@@ -320,19 +308,17 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
                     if (std::isspace(static_cast<unsigned char>(c))) {
                         continue;
                     }
-                    // Check for start of comments
                     if (c == '/' && nextC == '/') {
                         hasCommentOnLine = true;
-                        i = len; // Single-line comment consumes rest of line
+                        i = len;
                         break;
                     }
                     if (c == '/' && nextC == '*') {
                         hasCommentOnLine = true;
                         state = STATE_BLOCK_COMMENT;
-                        i++; // Skip '*'
+                        i++;
                         break;
                     }
-                    // String literals
                     if (c == '"') {
                         hasCodeOnLine = true;
                         state = STATE_STRING_DOUBLE;
@@ -348,8 +334,6 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
                         state = STATE_STRING_TEMPLATE;
                         break;
                     }
-
-                    // Otherwise regular code token
                     hasCodeOnLine = true;
                     break;
                 }
@@ -357,7 +341,7 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
                 case STATE_STRING_DOUBLE: {
                     hasCodeOnLine = true;
                     if (c == '\\') {
-                        i++; // Skip escaped character
+                        i++;
                     } else if (c == '"') {
                         state = STATE_NORMAL;
                     }
@@ -367,7 +351,7 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
                 case STATE_STRING_SINGLE: {
                     hasCodeOnLine = true;
                     if (c == '\\') {
-                        i++; // Skip escaped character
+                        i++;
                     } else if (c == '\'') {
                         state = STATE_NORMAL;
                     }
@@ -377,7 +361,7 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
                 case STATE_STRING_TEMPLATE: {
                     hasCodeOnLine = true;
                     if (c == '\\') {
-                        i++; // Skip escaped character
+                        i++;
                     } else if (c == '`') {
                         state = STATE_NORMAL;
                     }
@@ -388,14 +372,13 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
                     hasCommentOnLine = true;
                     if (c == '*' && nextC == '/') {
                         state = STATE_NORMAL;
-                        i++; // Skip '/'
+                        i++;
                     }
                     break;
                 }
             }
         }
 
-        // Categorize line
         if (!hasCodeOnLine && !hasCommentOnLine) {
             result.blankLines++;
         } else if (hasCodeOnLine && hasCommentOnLine) {
@@ -413,7 +396,6 @@ LineAnalysisResult DirectoryScanner::analyzeFileLines(const std::string& fullPat
 }
 
 void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::string& rootPath, ScanResult& result) {
-    // Avoid cyclic symlink traversals
     if (visitedCanonicalPaths_.find(currentPath) != visitedCanonicalPaths_.end()) {
         return;
     }
@@ -467,7 +449,6 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
 
             scanRecursive(fullPath, rootPath, result);
         } else {
-            // File Handling
             std::string lang, ext;
             if (!isSupportedSourceFile(entryName, lang, ext)) {
                 SkippedFileInfo info;
@@ -489,7 +470,6 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
                 continue;
             }
 
-            // Check file size
             stat_struct st;
             if (stat_func(fullPath.c_str(), &st) != 0) {
                 SkippedFileInfo info;
@@ -512,7 +492,6 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
                 continue;
             }
 
-            // Check if binary
             if (isBinaryFile(fullPath)) {
                 SkippedFileInfo info;
                 info.relativePath = relPath;
@@ -523,10 +502,8 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
                 continue;
             }
 
-            // Lexical line counting
             LineAnalysisResult lineStats = analyzeFileLines(fullPath, lang, config_.maxLineLengthThreshold);
 
-            // Check if minified / auto-generated
             if (isMinifiedOrGenerated(entryName, lineStats.maxLineLength)) {
                 SkippedFileInfo info;
                 info.relativePath = relPath;
@@ -537,7 +514,6 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
                 continue;
             }
 
-            // Record analyzed file metrics
             FileMetrics metrics;
             metrics.relativePath = normalizePath(relPath);
             metrics.absolutePath = normalizePath(fullPath);
@@ -553,6 +529,13 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
             metrics.hasLongLines = lineStats.hasLongLines;
             metrics.fileSizeBytes = fileSize;
 
+            // Phase 3 AST parsing for functions and complexity
+            std::ifstream srcFile(fullPath.c_str(), std::ios::in | std::ios::binary);
+            if (srcFile.is_open()) {
+                std::string sourceContent((std::istreambuf_iterator<char>(srcFile)), std::istreambuf_iterator<char>());
+                metrics.complexity = astParser_.analyzeSource(sourceContent, lang);
+            }
+
             result.files.push_back(metrics);
             result.summary.totalFilesScanned++;
             result.summary.totalLines += metrics.totalLines;
@@ -563,6 +546,13 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
             result.summary.totalSizeBytes += fileSize;
             result.summary.filesByLanguage[lang]++;
             result.summary.linesByLanguage[lang] += metrics.totalLines;
+
+            // Aggregate function & complexity metrics
+            result.summary.totalFunctions += metrics.complexity.totalFunctions;
+            if (metrics.complexity.maxComplexity > result.summary.maxComplexity) {
+                result.summary.maxComplexity = metrics.complexity.maxComplexity;
+            }
+            result.summary.highComplexityFunctionCount += metrics.complexity.complexFunctionCount;
         }
     } while (FindNextFileA(hFind, &findData) != 0);
 
@@ -693,6 +683,12 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
             metrics.hasLongLines = lineStats.hasLongLines;
             metrics.fileSizeBytes = fileSize;
 
+            std::ifstream srcFile(fullPath.c_str(), std::ios::in | std::ios::binary);
+            if (srcFile.is_open()) {
+                std::string sourceContent((std::istreambuf_iterator<char>(srcFile)), std::istreambuf_iterator<char>());
+                metrics.complexity = astParser_.analyzeSource(sourceContent, lang);
+            }
+
             result.files.push_back(metrics);
             result.summary.totalFilesScanned++;
             result.summary.totalLines += metrics.totalLines;
@@ -703,6 +699,12 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
             result.summary.totalSizeBytes += fileSize;
             result.summary.filesByLanguage[lang]++;
             result.summary.linesByLanguage[lang] += metrics.totalLines;
+
+            result.summary.totalFunctions += metrics.complexity.totalFunctions;
+            if (metrics.complexity.maxComplexity > result.summary.maxComplexity) {
+                result.summary.maxComplexity = metrics.complexity.maxComplexity;
+            }
+            result.summary.highComplexityFunctionCount += metrics.complexity.complexFunctionCount;
         }
     }
     closedir(dir);
@@ -711,7 +713,7 @@ void DirectoryScanner::scanRecursive(const std::string& currentPath, const std::
 
 ScanResult DirectoryScanner::scan(const std::string& rootDirectory) {
     ScanResult result;
-    result.engineVersion = "1.1.0";
+    result.engineVersion = "1.2.0";
     std::string normRoot = normalizePath(rootDirectory);
     result.repoPath = normRoot;
     result.scanTimestamp = getIsoTimestamp();
@@ -726,6 +728,17 @@ ScanResult DirectoryScanner::scan(const std::string& rootDirectory) {
 
     result.summary.skippedFilesCount = result.skippedFiles.size();
     result.summary.errorCount = result.errors.size();
+
+    // Compute repository-wide average complexity
+    if (result.summary.totalFunctions > 0) {
+        double sumComp = 0.0;
+        for (const auto& file : result.files) {
+            for (const auto& fn : file.complexity.functions) {
+                sumComp += static_cast<double>(fn.cyclomaticComplexity);
+            }
+        }
+        result.summary.averageComplexity = sumComp / static_cast<double>(result.summary.totalFunctions);
+    }
 
     return result;
 }
@@ -748,6 +761,12 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
     ss << "    \"totalSizeBytes\": " << result.summary.totalSizeBytes << ",\n";
     ss << "    \"skippedFilesCount\": " << result.summary.skippedFilesCount << ",\n";
     ss << "    \"errorCount\": " << result.summary.errorCount << ",\n";
+
+    // Phase 3 AST summary metrics
+    ss << "    \"totalFunctions\": " << result.summary.totalFunctions << ",\n";
+    ss << "    \"averageComplexity\": " << result.summary.averageComplexity << ",\n";
+    ss << "    \"maxComplexity\": " << result.summary.maxComplexity << ",\n";
+    ss << "    \"highComplexityFunctionCount\": " << result.summary.highComplexityFunctionCount << ",\n";
 
     // filesByLanguage
     ss << "    \"filesByLanguage\": {";
@@ -785,7 +804,36 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
         ss << "      \"mixedLines\": " << f.mixedLines << ",\n";
         ss << "      \"maxLineLength\": " << f.maxLineLength << ",\n";
         ss << "      \"hasLongLines\": " << (f.hasLongLines ? "true" : "false") << ",\n";
-        ss << "      \"fileSizeBytes\": " << f.fileSizeBytes << "\n";
+        ss << "      \"fileSizeBytes\": " << f.fileSizeBytes << ",\n";
+
+        // Phase 3 AST Complexity Breakdown for file
+        ss << "      \"complexitySummary\": {\n";
+        ss << "        \"totalFunctions\": " << f.complexity.totalFunctions << ",\n";
+        ss << "        \"averageComplexity\": " << f.complexity.averageComplexity << ",\n";
+        ss << "        \"maxComplexity\": " << f.complexity.maxComplexity << ",\n";
+        ss << "        \"maxNestingDepth\": " << f.complexity.maxNestingDepth << ",\n";
+        ss << "        \"complexFunctionCount\": " << f.complexity.complexFunctionCount << "\n";
+        ss << "      },\n";
+
+        // Functions in file
+        ss << "      \"functions\": [\n";
+        for (size_t j = 0; j < f.complexity.functions.size(); ++j) {
+            const auto& fn = f.complexity.functions[j];
+            ss << "        {\n";
+            ss << "          \"name\": \"" << escapeJsonString(fn.name) << "\",\n";
+            ss << "          \"startLine\": " << fn.startLine << ",\n";
+            ss << "          \"endLine\": " << fn.endLine << ",\n";
+            ss << "          \"startColumn\": " << fn.startColumn << ",\n";
+            ss << "          \"endColumn\": " << fn.endColumn << ",\n";
+            ss << "          \"lineCount\": " << fn.lineCount << ",\n";
+            ss << "          \"parameterCount\": " << fn.parameterCount << ",\n";
+            ss << "          \"cyclomaticComplexity\": " << fn.cyclomaticComplexity << ",\n";
+            ss << "          \"maxNestingDepth\": " << fn.maxNestingDepth << ",\n";
+            ss << "          \"isHighComplexity\": " << (fn.isHighComplexity ? "true" : "false") << "\n";
+            ss << "        }" << (j + 1 < f.complexity.functions.size() ? ",\n" : "\n");
+        }
+        ss << "      ]\n";
+
         ss << "    }" << (i + 1 < result.files.size() ? ",\n" : "\n");
     }
     ss << "  ],\n";

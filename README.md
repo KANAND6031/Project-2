@@ -83,7 +83,7 @@ CodeInsight/
 
 - [x] **Phase 1: Project Setup & Baseline Integration** (Folder structure, C++ CLI executable, Node.js API integration, JSON IPC verification)
 - [x] **Phase 2: Repository Scanner** (Extended file filtering, binary detection, exclusion rules, lexical state machine, unit tests)
-- [ ] **Phase 3: Source-Code Parsing & AST Metrics** (Tree-sitter AST, cyclomatic complexity, nesting depth)
+- [x] **Phase 3: Source-Code Parsing & AST Metrics** (Tree-sitter AST integration, McCabe cyclomatic complexity, nesting depth, function length & params)
 - [ ] **Phase 4: Duplicate Code Detection** (Token normalization, rolling hash / suffix arrays)
 - [ ] **Phase 5: Dependency Graph Analysis** (Import/include extraction, fan-in/fan-out, Tarjan cycle detection)
 - [ ] **Phase 6: Git History Analysis** (Commit churn, modification frequency, co-change coupling)
