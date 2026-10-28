@@ -68,3 +68,31 @@ $$\text{AverageComplexity}(F) = \begin{cases} \frac{1}{K} \sum_{i=1}^K M_i, & \t
 $$\text{MaxComplexity}(F) = \max_{1 \le i \le K} M_i$$
 $$\text{ComplexFunctionCount}(F) = \sum_{i=1}^K [M_i > 10]$$
 
+---
+
+## 5. Duplicate Code Detection Methodology
+
+### Theoretical Foundation
+Code clones are categorized into 4 classical types:
+1. **Type 1 (Exact)**: Identical code fragments except for formatting, whitespace, and comments.
+2. **Type 2 (Parameterized)**: Syntactically identical fragments where identifiers and literals have been renamed.
+3. **Type 3 (Near-Miss)**: Fragments with statements added, deleted, or reordered.
+4. **Type 4 (Semantic)**: Computationally identical logic with disparate syntax.
+
+CodeInsight implements an exact, normalized token-based **Type 1** clone detection engine with maximal clone expansion.
+
+### Detection Pipeline
+1. **Normalization**: Comments (`//`, `/* ... */`) and empty lines are stripped. Internal whitespace sequences `[ \t]+` are collapsed to single spaces. Original 1-indexed line numbers are tracked.
+2. **Sliding Window Hashing**: A sliding window of size $K = \text{minBlockLines}$ (default 5 lines) slides across normalized files. Blocks under $\text{minTokenChars} = 30$ characters are discarded to prevent trivial boilerplate repetition (e.g., repeating closing braces).
+3. **Maximal Clone Expansion**: Matching blocks are extended forward until the next non-matching line is reached, generating the maximal duplicate range.
+4. **Subsumption Filtering**: Sub-slices covered by larger duplicate blocks are filtered out to eliminate redundant duplicate reports.
+5. **Clustering & Percentage**: Clones are grouped into `DuplicateGroup` entities with unique IDs (`DUP-001`, `DUP-002`).
+
+### Duplication Percentage Formula
+For a file $F$ containing $N$ total lines, where $D(F)$ is the set of unique line indices involved in any clone fragment:
+$$\text{DuplicationPercentage}(F) = \frac{|D(F)|}{N} \times 100\%$$
+
+Across the whole repository:
+$$\text{OverallDuplication} = \frac{\sum_{F \in \text{Repo}} |D(F)|}{\sum_{F \in \text{Repo}} \text{TotalLines}(F)} \times 100\%$$
+
+

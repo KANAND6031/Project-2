@@ -35,11 +35,13 @@ target_include_directories(treesitter PUBLIC
 set(SCANNER_SOURCES
     src/scanner.cpp
     src/ast_parser.cpp
+    src/duplicate_detector.cpp
 )
 
 set(SCANNER_HEADERS
     include/scanner.hpp
     include/ast_parser.hpp
+    include/duplicate_detector.hpp
 )
 
 # Standalone CLI Executable
@@ -51,7 +53,7 @@ target_include_directories(codeinsight-analyzer PRIVATE
 target_link_libraries(codeinsight-analyzer PRIVATE treesitter)
 set_target_properties(codeinsight-analyzer PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-# Unit Test Executable
+# Unit Test Executable: Scanner
 add_executable(test-scanner tests/test_scanner.cpp ${SCANNER_SOURCES} ${SCANNER_HEADERS})
 target_include_directories(test-scanner PRIVATE
     ${PROJECT_SOURCE_DIR}/include
@@ -59,3 +61,12 @@ target_include_directories(test-scanner PRIVATE
 )
 target_link_libraries(test-scanner PRIVATE treesitter)
 set_target_properties(test-scanner PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+# Unit Test Executable: Duplicates
+add_executable(test-duplicates tests/test_duplicates.cpp ${SCANNER_SOURCES} ${SCANNER_HEADERS})
+target_include_directories(test-duplicates PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${TREE_SITTER_DIR}/include
+)
+target_link_libraries(test-duplicates PRIVATE treesitter)
+set_target_properties(test-duplicates PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

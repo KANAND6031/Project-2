@@ -2,6 +2,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const astEngine = require('./astEngine');
+const duplicateService = require('./duplicateService');
 
 class AnalyzerService {
   constructor() {
@@ -47,20 +48,17 @@ class AnalyzerService {
     if (fs.existsSync(this.executablePath)) {
       try {
         const nativeReport = await this.executeNativeBinary(absoluteTarget, timeoutMs);
-        // If native binary ran and already has AST functions, return it
-        if (nativeReport.summary && nativeReport.summary.totalFunctions > 0) {
+        if (nativeReport.summary && nativeReport.summary.totalFunctions > 0 && nativeReport.duplicateGroups) {
           return nativeReport;
         }
-        // Otherwise enrich with AST metrics
-        return this.enrichWithAst(nativeReport, absoluteTarget);
+        return this.enrichWithAstAndDuplication(nativeReport, absoluteTarget);
       } catch (err) {
         console.warn(
-          `[CodeInsight Engine] Native binary execution bypassed (${err.message}). Engaging integrated AST analysis engine.`
+          `[CodeInsight Engine] Native binary execution bypassed (${err.message}). Engaging integrated AST & clone analysis engine.`
         );
       }
     }
 
-    // Fallback: full integrated AST & repository analysis engine
     return this.runFallbackScan(absoluteTarget);
   }
 
@@ -117,22 +115,32 @@ class AnalyzerService {
   }
 
   /**
-   * Enriches native scanner report with AST function metrics if needed.
+   * Enriches native scanner report with AST function metrics & duplicate groups if needed.
    */
-  enrichWithAst(report, rootDir) {
+  enrichWithAstAndDuplication(report, rootDir) {
     let totalFuncs = 0;
     let sumComp = 0;
     let maxComp = 0;
     let highCompCount = 0;
+    const filesWithContent = [];
 
     for (const file of report.files) {
-      if (!file.complexitySummary || file.complexitySummary.totalFunctions === 0) {
-        const fullPath = path.isAbsolute(file.absolutePath)
-          ? file.absolutePath
-          : path.join(rootDir, file.relativePath);
+      const fullPath = path.isAbsolute(file.absolutePath)
+        ? file.absolutePath
+        : path.join(rootDir, file.relativePath);
 
-        if (fs.existsSync(fullPath)) {
-          const content = fs.readFileSync(fullPath, 'utf8');
+      let content = '';
+      if (fs.existsSync(fullPath)) {
+        content = fs.readFileSync(fullPath, 'utf8');
+        filesWithContent.push({
+          relativePath: file.relativePath,
+          content,
+          totalLines: file.totalLines
+        });
+      }
+
+      if (!file.complexitySummary || file.complexitySummary.totalFunctions === 0) {
+        if (content) {
           const complexity = astEngine.analyzeFile(fullPath, content, file.language);
           file.complexitySummary = {
             totalFunctions: complexity.totalFunctions,
@@ -160,11 +168,23 @@ class AnalyzerService {
     report.summary.maxComplexity = maxComp;
     report.summary.highComplexityFunctionCount = highCompCount;
 
+    // Run duplicate detection
+    const dupReport = duplicateService.analyze(filesWithContent);
+    report.duplicateGroups = dupReport.groups;
+    report.summary.totalDuplicateBlocks = dupReport.totalDuplicateBlocks;
+    report.summary.totalDuplicateLines = dupReport.totalDuplicateLines;
+    report.summary.overallDuplicationPercentage = dupReport.overallDuplicationPercentage;
+
+    for (const file of report.files) {
+      file.duplicateLines = dupReport.duplicateLinesByFile[file.relativePath] || 0;
+      file.duplicatePercentage = dupReport.duplicatePercentageByFile[file.relativePath] || 0;
+    }
+
     return report;
   }
 
   /**
-   * Pure Node.js fallback scanner with AST parsing.
+   * Pure Node.js fallback scanner with AST parsing and code duplication detection.
    */
   runFallbackScan(rootDir) {
     const report = {
@@ -185,10 +205,14 @@ class AnalyzerService {
         averageComplexity: 0,
         maxComplexity: 0,
         highComplexityFunctionCount: 0,
+        totalDuplicateBlocks: 0,
+        totalDuplicateLines: 0,
+        overallDuplicationPercentage: 0,
         filesByLanguage: {},
         linesByLanguage: {}
       },
       files: [],
+      duplicateGroups: [],
       skippedFiles: [],
       errors: []
     };
@@ -219,6 +243,8 @@ class AnalyzerService {
       const base = path.basename(norm);
       return gitignoreRules.some(r => norm === r || norm.startsWith(r + '/') || base === r);
     };
+
+    const filesForDuplication = [];
 
     const walk = currentDir => {
       let entries;
@@ -291,7 +317,7 @@ class AnalyzerService {
             continue;
           }
 
-          // Check if binary
+          // Check if binary file
           const buf = Buffer.alloc(Math.min(stat.size, 4096));
           const fd = fs.openSync(fullPath, 'r');
           const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
@@ -314,7 +340,7 @@ class AnalyzerService {
             continue;
           }
 
-          // Check minified
+          // Check minified file
           if (entry.name.includes('.min.') || entry.name.includes('.bundle.')) {
             report.skippedFiles.push({
               relativePath: relPath,
@@ -372,6 +398,8 @@ class AnalyzerService {
             maxLineLength: maxLineLen,
             hasLongLines: false,
             fileSizeBytes: stat.size,
+            duplicateLines: 0,
+            duplicatePercentage: 0,
             complexitySummary: {
               totalFunctions: complexity.totalFunctions,
               averageComplexity: complexity.averageComplexity,
@@ -383,6 +411,12 @@ class AnalyzerService {
           };
 
           report.files.push(fileMetric);
+          filesForDuplication.push({
+            relativePath: relPath,
+            content,
+            totalLines: lines.length
+          });
+
           report.summary.totalFiles++;
           report.summary.totalLines += lines.length;
           report.summary.totalCodeLines += codeLines;
@@ -416,6 +450,18 @@ class AnalyzerService {
         }
       }
       report.summary.averageComplexity = parseFloat((sumComp / report.summary.totalFunctions).toFixed(2));
+    }
+
+    // Phase 4 Duplication analysis across analyzed files
+    const dupReport = duplicateService.analyze(filesForDuplication);
+    report.duplicateGroups = dupReport.groups;
+    report.summary.totalDuplicateBlocks = dupReport.totalDuplicateBlocks;
+    report.summary.totalDuplicateLines = dupReport.totalDuplicateLines;
+    report.summary.overallDuplicationPercentage = dupReport.overallDuplicationPercentage;
+
+    for (const f of report.files) {
+      f.duplicateLines = dupReport.duplicateLinesByFile[f.relativePath] || 0;
+      f.duplicatePercentage = dupReport.duplicatePercentageByFile[f.relativePath] || 0;
     }
 
     return report;

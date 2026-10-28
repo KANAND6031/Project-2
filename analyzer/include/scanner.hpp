@@ -7,6 +7,7 @@
 #include <set>
 #include <cstdint>
 #include "ast_parser.hpp"
+#include "duplicate_detector.hpp"
 
 namespace codeinsight {
 
@@ -41,6 +42,10 @@ struct FileMetrics {
 
     // Phase 3 AST metrics
     FileComplexitySummary complexity;
+
+    // Phase 4 Duplication metrics
+    size_t duplicateLines = 0;
+    double duplicatePercentage = 0.0;
 };
 
 // Information about a file that was skipped
@@ -70,6 +75,11 @@ struct ScanSummary {
     double averageComplexity = 0.0;
     size_t maxComplexity = 0;
     size_t highComplexityFunctionCount = 0;
+
+    // Phase 4 Duplication summary metrics
+    size_t totalDuplicateBlocks = 0;
+    size_t totalDuplicateLines = 0;
+    double overallDuplicationPercentage = 0.0;
 };
 
 // Full scan result returned by the analyzer
@@ -79,6 +89,7 @@ struct ScanResult {
     std::string scanTimestamp;
     ScanSummary summary;
     std::vector<FileMetrics> files;
+    std::vector<DuplicateGroup> duplicateGroups;
     std::vector<SkippedFileInfo> skippedFiles;
     std::vector<std::string> errors;
 };
@@ -88,6 +99,8 @@ struct ScanConfig {
     uint64_t maxFileSizeBytes = 5 * 1024 * 1024; // 5 MB max file size
     size_t maxLineLengthThreshold = 1000;         // Lines longer than 1000 chars flag minification
     bool respectGitignore = true;
+    size_t minDuplicateLines = 5;                 // Minimum consecutive lines to detect code clones
+    size_t minDuplicateTokenChars = 30;           // Avoid trivial line repetition
     std::vector<std::string> additionalExcludedDirs;
 };
 
@@ -120,6 +133,7 @@ public:
 private:
     ScanConfig config_;
     AstParser astParser_;
+    DuplicateDetector duplicateDetector_;
     std::vector<std::string> gitignorePatterns_;
     std::set<std::string> visitedCanonicalPaths_; // Prevents symlink loops
 
