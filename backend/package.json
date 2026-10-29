@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node tests/test_ast.js && node tests/test_duplicates.js && node tests/test_risk_scorer.js"
+    "test": "node tests/test_ast.js && node tests/test_duplicates.js && node tests/test_risk_scorer.js",
+    "test:api": "node tests/test_api.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
