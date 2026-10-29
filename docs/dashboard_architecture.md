@@ -8,8 +8,6 @@ The dashboard integrates directly with the backend REST endpoints (Phases 8 & 9)
 - **Explainable Technical Debt Scoring**: Interactive breakdowns of the formula $R = 0.45C + 0.35D + 0.20S$ with structural sub-weights $S = 0.40L + 0.35N + 0.25P$.
 - **Detailed Function-Level Diagnostics**: Cyclomatic complexity ($M = 1 + D$), maximum nesting depth ($N$), parameter count ($P$), and line ranges for every function.
 - **Clustered Duplicate Code Viewer**: Multi-file clone groups with line counts, location fragments, and normalized syntax previews.
-- **Interactive Topological Graph**: Cytoscape.js graph rendering source files as nodes sized by volume (LOC) and color-coded by technical debt severity.
-- **Differential Scan Comparison**: Longitudinal regression tracking between scans with automated trajectory classification (`IMPROVED`, `DEGRADED`, `STABLE`).
 
 ---
 
@@ -22,8 +20,6 @@ graph TD
     App --> Overview["Overview.jsx (Stats Grid, Formula Card, Distribution Chart, Top Hotspots)"]
     App --> FileList["FileList.jsx (Search, Filters, Sortable File Table, Pagination)"]
     App --> DuplicateViewer["DuplicateViewer.jsx (Clone Groups, Fragments, Code Snippets)"]
-    App --> DependencyGraph["DependencyGraph.jsx (Cytoscape.js Network, Force Layout, Node Inspector)"]
-    App --> ScanComparison["ScanComparison.jsx (Base vs Target Diff, Trajectory, Regressions)"]
     App --> FileDetail["FileDetail.jsx Modal (Sub-Score Breakdown, Factors, Function Metrics)"]
     App --> NewScanModal["NewScanModal.jsx Modal (Path, Custom Weights, Sync/Async Queue)"]
 ```
@@ -37,8 +33,6 @@ graph TD
 | **`FileList.jsx`** | `frontend/src/components/FileList.jsx` | Interactive source file table with real-time text search, severity/language filters, multi-column sorting (risk, lines, complexity), pagination, and detail inspector launcher. |
 | **`FileDetail.jsx`** | `frontend/src/components/FileDetail.jsx` | Modal dialog inspecting an individual file: formula sub-scores ($C, D, S, L, N, P$), weighted points breakdown, explicit risk factors, and full function metrics table. |
 | **`DuplicateViewer.jsx`** | `frontend/src/components/DuplicateViewer.jsx` | Clone cluster inspector: search filter, min-line threshold selector, accordion cards with participating file fragments, and normalized syntax blocks. |
-| **`DependencyGraph.jsx`** | `frontend/src/components/DependencyGraph.jsx` | Cytoscape.js interactive graph: node sizing by LOC, color-coding by risk severity, force-directed CoSE layout, zoom/pan controls, and node selection sidebar. |
-| **`ScanComparison.jsx`** | `frontend/src/components/ScanComparison.jsx` | Longitudinal regression analysis: base vs target scan selectors, overall health trajectory badge, delta metric cards, and degraded vs improved file tables. |
 | **`NewScanModal.jsx`** | `frontend/src/components/NewScanModal.jsx` | Scan trigger modal: existing repo select or new path registration, configurable risk weights ($w_c, w_d, w_s$), and synchronous vs async background queue selector. |
 
 ---
@@ -106,10 +100,9 @@ npm run build --prefix frontend
 ```
 Rollup `manualChunks` divides third-party libraries into independent bundles:
 - `vendor-charts`: Recharts charting engine (~499 kB).
-- `vendor-graph`: Cytoscape.js graph layout engine (~443 kB).
-- `vendor-icons`: Lucide React icon symbols (~20 kB).
+- `vendor-icons`: Lucide React icon symbols (~19 kB).
 - `vendor-react`: React & ReactDOM runtime.
-- `index`: Core application logic (~72 kB).
+- `index`: Core application logic (~62 kB).
 
 ### 3. Integrated Single-Server Mode
 The Node.js Express backend (`backend/src/server.js`) automatically detects `frontend/dist` and serves both the compiled single-page application and the REST API from a single port (`http://localhost:5000`):

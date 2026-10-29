@@ -3,8 +3,6 @@ import {
   LayoutDashboard,
   FileCode,
   Copy,
-  GitBranch,
-  GitCompare,
   AlertCircle,
   RefreshCw
 } from 'lucide-react';
@@ -14,8 +12,6 @@ import Overview from './components/Overview';
 import FileList from './components/FileList';
 import FileDetail from './components/FileDetail';
 import DuplicateViewer from './components/DuplicateViewer';
-import DependencyGraph from './components/DependencyGraph';
-import ScanComparison from './components/ScanComparison';
 import NewScanModal from './components/NewScanModal';
 
 export default function App() {
@@ -253,22 +249,6 @@ export default function App() {
             <Copy size={16} />
             <span>Duplicate Code</span>
           </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'dependencies' ? 'active' : ''}`}
-            onClick={() => setActiveTab('dependencies')}
-          >
-            <GitBranch size={16} />
-            <span>Dependency Graph</span>
-          </button>
-
-          <button
-            className={`tab-btn ${activeTab === 'compare' ? 'active' : ''}`}
-            onClick={() => setActiveTab('compare')}
-          >
-            <GitCompare size={16} />
-            <span>Differential Comparison</span>
-          </button>
         </div>
 
         {/* Tab Content Views */}
@@ -296,21 +276,6 @@ export default function App() {
 
             {activeTab === 'duplicates' && (
               <DuplicateViewer scanId={activeScan?.id} />
-            )}
-
-            {activeTab === 'dependencies' && (
-              <DependencyGraph
-                scanId={activeScan?.id}
-                onSelectFile={(path) => setSelectedFilePath(path)}
-              />
-            )}
-
-            {activeTab === 'compare' && (
-              <ScanComparison
-                scans={scans}
-                activeScan={activeScan}
-                onSelectFile={(path) => setSelectedFilePath(path)}
-              />
             )}
           </div>
         )}

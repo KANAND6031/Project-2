@@ -19,7 +19,6 @@ export default defineConfig({
         manualChunks: {
           'vendor-react': ['react', 'react-dom'],
           'vendor-charts': ['recharts'],
-          'vendor-graph': ['cytoscape'],
           'vendor-icons': ['lucide-react']
         }
       }

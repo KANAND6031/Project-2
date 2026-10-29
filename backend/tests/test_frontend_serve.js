@@ -33,7 +33,7 @@ async function testFrontendServe() {
     console.log(`- GET / (SPA index): status=${index.status}`);
     if (index.status !== 200) throw new Error('Index serve failed');
     if (!index.body.includes('CodeInsight')) throw new Error('Index HTML missing CodeInsight title');
-    if (!index.body.includes('vendor-graph')) throw new Error('Index HTML missing bundled vendor script link');
+    if (!index.body.includes('vendor-charts')) throw new Error('Index HTML missing bundled vendor script link');
 
     // 3. Test SPA client-side routing fallback (e.g. /files, /duplicates)
     const routeFallback = await fetchUrl('/duplicates');

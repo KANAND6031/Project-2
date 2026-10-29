@@ -10,7 +10,7 @@ It pairs a high-performance **C++ analysis engine** with a **Node.js/Express RES
 
 ```text
 ┌─────────────────────────┐
-│     React Frontend      │  (Interactive Dashboard, Metrics, Cytoscape Graph)
+│     React Frontend      │  (Interactive Dashboard, Metrics, Clone Viewer)
 └───────────┬─────────────┘
             │ HTTP / REST
 ┌───────────▼─────────────┐
@@ -152,7 +152,7 @@ npm run test:api
 - [x] **Phase 7: Technical Debt Scoring** (Configurable explainable risk formula: $R = 0.45C + 0.35D + 0.20S$)
 - [x] **Phase 8: Node.js API Expansion** (REST endpoints, queue management, compare, multi-format export)
 - [x] **Phase 9: PostgreSQL Persistence** (10 relational tables, connection pool, transactional scan persistence)
-- [x] **Phase 10: React Dashboard** (Developer tool design, Recharts risk distribution, Cytoscape topology, duplicate viewer, regression comparison)
+- [x] **Phase 10: React Dashboard** (Developer tool design, Recharts risk distribution, clone viewer)
 - [ ] **Phase 11: Testing, Benchmarking & Validation**
 - [ ] **Phase 12: Docker & Docker Compose Containerization**
 - [ ] **Phase 13: Presentation, Reports & Documentation**
