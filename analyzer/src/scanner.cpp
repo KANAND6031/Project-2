@@ -861,9 +861,14 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
         ss << "        \"subScores\": {\n";
         ss << "          \"complexity\": " << f.riskBreakdown.subScores.complexity << ",\n";
         ss << "          \"duplication\": " << f.riskBreakdown.subScores.duplication << ",\n";
-        ss << "          \"structural\": " << f.riskBreakdown.subScores.structural << ",\n";
-        ss << "          \"dependency\": null,\n";
-        ss << "          \"churn\": null\n";
+        ss << "          \"structural\": " << f.riskBreakdown.subScores.structural << "\n";
+        ss << "        },\n";
+        ss << "        \"structuralDetails\": {\n";
+        ss << "          \"lengthScore\": " << f.riskBreakdown.structuralDetails.lengthScore << ",\n";
+        ss << "          \"nestingScore\": " << f.riskBreakdown.structuralDetails.nestingScore << ",\n";
+        ss << "          \"parameterScore\": " << f.riskBreakdown.structuralDetails.parameterScore << ",\n";
+        ss << "          \"maxFunctionLength\": " << f.riskBreakdown.structuralDetails.maxFunctionLength << ",\n";
+        ss << "          \"maxParameterCount\": " << f.riskBreakdown.structuralDetails.maxParameterCount << "\n";
         ss << "        },\n";
         ss << "        \"riskFactors\": [\n";
         for (size_t k = 0; k < f.riskBreakdown.riskFactors.size(); ++k) {
@@ -950,6 +955,7 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
     ss << "    \"repositoryRiskScore\": " << result.technicalDebt.repositoryRiskScore << ",\n";
     ss << "    \"unweightedAverageRisk\": " << result.technicalDebt.unweightedAverageRisk << ",\n";
     ss << "    \"overallSeverity\": \"" << result.technicalDebt.overallSeverity << "\",\n";
+    ss << "    \"formula\": \"" << escapeJsonString(result.technicalDebt.formula) << "\",\n";
     ss << "    \"riskDistribution\": {\n";
     size_t distIdx = 0;
     for (const auto& kv : result.technicalDebt.riskDistribution) {

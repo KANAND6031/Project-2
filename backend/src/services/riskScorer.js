@@ -1,25 +1,63 @@
 /**
  * CodeInsight Technical Debt Risk Scorer
- * Phase 7: Configurable, Explainable Technical Debt Risk Scoring Engine
+ * Phase 7: Technical Debt Risk Scoring Engine
  *
- * Implements a multi-dimensional heuristic model combining:
- *  1. Cyclomatic Complexity & Nesting Depth (30% default)
- *  2. Code Duplication Percentage (25% default)
- *  3. Structural Size & Physical Metrics (10% default)
- *  4. Dependency Coupling Risk (20% default - extensible when Phase 5 active)
- *  5. Git Churn & Modification Frequency (15% default - extensible when Phase 6 active)
+ * Implements the formula:
+ *   R = 0.45 * C + 0.35 * D + 0.20 * S
  *
- * Designed with dynamic weight re-normalization:
- * When metrics are absent (e.g., Phase 5/6 skipped or unconfigured), remaining active
- * weights automatically re-scale to sum to 1.0 (100%), preserving score integrity.
+ * Where:
+ *   - R = Overall file risk score (0–100)
+ *   - C = Normalized complexity score (0–100, 45% weight)
+ *   - D = Normalized duplication score (0–100, 35% weight)
+ *   - S = Normalized size and structural score (0–100, 20% weight)
+ *         S = 0.40 * L + 0.35 * N + 0.25 * P
+ *         (L = Length score, N = Nesting score, P = Parameter score)
  */
 
 const DEFAULT_WEIGHTS = {
-  complexity: 0.30,
-  duplication: 0.25,
-  dependency: 0.20,
-  churn: 0.15,
-  structural: 0.10
+  complexity: 0.45,
+  duplication: 0.35,
+  structural: 0.20
+};
+
+const DEFAULT_STRUCTURAL_WEIGHTS = {
+  length: 0.40,
+  nesting: 0.35,
+  parameters: 0.25
+};
+
+const DEFAULT_THRESHOLDS = {
+  complexity: [
+    { max: 5, score: 10 },
+    { max: 10, score: 35 },
+    { max: 15, score: 65 },
+    { max: Infinity, score: 90 }
+  ],
+  duplication: [
+    { max: 0, score: 0 },
+    { max: 5, score: 20 },
+    { max: 10, score: 40 },
+    { max: 20, score: 70 },
+    { max: Infinity, score: 90 }
+  ],
+  length: [
+    { maxLoc: 100, maxFuncLen: 30, score: 10 },
+    { maxLoc: 300, maxFuncLen: 60, score: 35 },
+    { maxLoc: 700, maxFuncLen: 120, score: 65 },
+    { maxLoc: Infinity, maxFuncLen: Infinity, score: 90 }
+  ],
+  nesting: [
+    { max: 1, score: 10 },
+    { max: 2, score: 35 },
+    { max: 3, score: 65 },
+    { max: Infinity, score: 90 }
+  ],
+  parameters: [
+    { max: 2, score: 10 },
+    { max: 4, score: 35 },
+    { max: 6, score: 65 },
+    { max: Infinity, score: 90 }
+  ]
 };
 
 const SEVERITY_LEVELS = {
@@ -30,127 +68,141 @@ const SEVERITY_LEVELS = {
 };
 
 class RiskScorer {
-  constructor(customWeights = {}) {
+  constructor(customWeights = {}, customThresholds = {}) {
     this.weights = { ...DEFAULT_WEIGHTS, ...customWeights };
+    this.structuralWeights = { ...DEFAULT_STRUCTURAL_WEIGHTS, ...(customWeights.structuralBreakdown || {}) };
+    this.thresholds = {
+      complexity: customThresholds.complexity || DEFAULT_THRESHOLDS.complexity,
+      duplication: customThresholds.duplication || DEFAULT_THRESHOLDS.duplication,
+      length: customThresholds.length || DEFAULT_THRESHOLDS.length,
+      nesting: customThresholds.nesting || DEFAULT_THRESHOLDS.nesting,
+      parameters: customThresholds.parameters || DEFAULT_THRESHOLDS.parameters
+    };
   }
 
   /**
-   * Normalizes maximum cyclomatic complexity to a 0-100 scale using
-   * a calibrated piecewise saturation curve based on McCabe guidelines.
-   *
-   * Thresholds:
-   *   1 - 10: Low risk (score 0 - 30)
-   *  11 - 25: Moderate to High risk (score 30 - 70)
-   *  26 - 50: High to Very High risk (score 70 - 90)
-   *     > 50: Critical / Unmaintainable (score 90 - 100)
+   * Calculates normalized complexity score C (0–100, 45% weight)
+   * Maximum function complexity:
+   *   1–5   => 10
+   *   6–10  => 35
+   *   11–15 => 65
+   *   >15   => 90
+   *   (0 or no functions => 0)
    */
-  normalizeMaxComplexity(maxComp) {
-    if (!maxComp || maxComp <= 1) return 0;
-    if (maxComp <= 10) {
-      return parseFloat(((maxComp / 10) * 30).toFixed(2));
+  calculateComplexityScore(maxComplexity, totalFunctions = 0) {
+    if (!totalFunctions || maxComplexity <= 0) return 0;
+    for (const t of this.thresholds.complexity) {
+      if (maxComplexity <= t.max) return t.score;
     }
-    if (maxComp <= 25) {
-      return parseFloat((30 + ((maxComp - 10) / 15) * 40).toFixed(2));
-    }
-    if (maxComp <= 50) {
-      return parseFloat((70 + ((maxComp - 25) / 25) * 20).toFixed(2));
-    }
-    return Math.min(100, parseFloat((90 + ((maxComp - 50) / 50) * 10).toFixed(2)));
+    return 90;
   }
 
   /**
-   * Normalizes maximum nesting depth to a 0-100 scale.
-   * Deeply nested control flow (depth >= 4) severely impedes code readability.
+   * Calculates normalized duplication score D (0–100, 35% weight)
+   * Duplication percentage:
+   *   0%    => 0
+   *   1–5%  => 20
+   *   6–10% => 40
+   *   11–20%=> 70
+   *   >20%  => 90
    */
-  normalizeNestingDepth(maxNesting) {
-    if (!maxNesting || maxNesting <= 1) return 0;
-    if (maxNesting <= 3) {
-      return parseFloat((((maxNesting - 1) / 2) * 40).toFixed(2));
-    }
-    if (maxNesting <= 5) {
-      return parseFloat((40 + ((maxNesting - 3) / 2) * 40).toFixed(2));
-    }
-    return Math.min(100, parseFloat((80 + (maxNesting - 5) * 10).toFixed(2)));
-  }
-
-  /**
-   * Calculates the unified Complexity Dimension Sub-Score (0-100).
-   * Blends max cyclomatic complexity (65%) and max nesting depth (35%),
-   * with an adjustment if multiple complex functions exist.
-   */
-  calculateComplexityScore(complexitySummary) {
-    if (!complexitySummary || complexitySummary.totalFunctions === 0) {
-      return 0;
-    }
-
-    const maxComp = complexitySummary.maxComplexity || 0;
-    const maxNesting = complexitySummary.maxNestingDepth || 0;
-    const complexCount = complexitySummary.complexFunctionCount || 0;
-
-    const compScore = this.normalizeMaxComplexity(maxComp);
-    const nestingScore = this.normalizeNestingDepth(maxNesting);
-
-    let combined = (compScore * 0.65) + (nestingScore * 0.35);
-
-    // Multi-function density modifier: multiple complex functions heighten file risk
-    if (complexCount > 1) {
-      const densityBonus = Math.min(15, (complexCount - 1) * 3);
-      combined += densityBonus;
-    }
-
-    return Math.min(100, parseFloat(combined.toFixed(2)));
-  }
-
-  /**
-   * Normalizes code duplication percentage (0-100) to a 0-100 risk score.
-   * Employs non-linear scaling where >30% duplication rapidly escalates risk.
-   */
-  normalizeDuplication(dupPercentage) {
+  calculateDuplicationScore(dupPercentage) {
     const pct = Math.max(0, Math.min(100, Number(dupPercentage) || 0));
     if (pct === 0) return 0;
-    if (pct <= 10) {
-      return parseFloat(((pct / 10) * 20).toFixed(2));
+    for (const t of this.thresholds.duplication) {
+      if (pct <= t.max) return t.score;
     }
-    if (pct <= 30) {
-      return parseFloat((20 + ((pct - 10) / 20) * 35).toFixed(2));
-    }
-    if (pct <= 60) {
-      return parseFloat((55 + ((pct - 30) / 30) * 30).toFixed(2));
-    }
-    return Math.min(100, parseFloat((85 + ((pct - 60) / 40) * 15).toFixed(2)));
+    return 90;
   }
 
   /**
-   * Normalizes physical file size and structural density (0-100).
-   * Monolithic files (>500 LOC) and long lines indicate poor modularity.
+   * Calculates normalized length score L (0–100)
+   * Evaluates total file lines of code and maximum function length:
+   *   LOC <= 100 && maxFuncLen <= 30  => 10
+   *   LOC <= 300 && maxFuncLen <= 60  => 35
+   *   LOC <= 700 && maxFuncLen <= 120 => 65
+   *   Above => 90
    */
-  normalizeStructuralMetrics(totalLines, maxLineLength = 0) {
-    const loc = Math.max(0, Number(totalLines) || 0);
-    if (loc === 0) return 0;
-
-    let locScore;
-    if (loc <= 100) {
-      locScore = (loc / 100) * 15;
-    } else if (loc <= 300) {
-      locScore = 15 + ((loc - 100) / 200) * 20;
-    } else if (loc <= 750) {
-      locScore = 35 + ((loc - 300) / 450) * 35;
-    } else if (loc <= 1500) {
-      locScore = 70 + ((loc - 750) / 750) * 20;
-    } else {
-      locScore = Math.min(100, 90 + ((loc - 1500) / 1500) * 10);
+  calculateLengthScore(totalLines, maxFuncLen = 0) {
+    if (totalLines <= 0) return 0;
+    for (const t of this.thresholds.length) {
+      if (totalLines <= t.maxLoc && maxFuncLen <= t.maxFuncLen) return t.score;
     }
-
-    let linePenalty = 0;
-    if (maxLineLength > 150) {
-      linePenalty = Math.min(10, ((maxLineLength - 150) / 150) * 10);
-    }
-
-    return Math.min(100, parseFloat(((locScore * 0.9) + linePenalty).toFixed(2)));
+    return 90;
   }
 
   /**
-   * Maps a numerical risk score (0-100) to its provisional severity level.
+   * Calculates normalized nesting depth score N (0–100)
+   *   Depth <= 1 => 10 (or 0 if no functions)
+   *   Depth == 2 => 35
+   *   Depth == 3 => 65
+   *   Depth >= 4 => 90
+   */
+  calculateNestingScore(maxNesting, totalFunctions = 0) {
+    if (!totalFunctions) return 0;
+    for (const t of this.thresholds.nesting) {
+      if (maxNesting <= t.max) return t.score;
+    }
+    return 90;
+  }
+
+  /**
+   * Calculates normalized parameter count score P (0–100)
+   *   Params <= 2 => 10
+   *   Params 3–4  => 35
+   *   Params 5–6  => 65
+   *   Params > 6  => 90
+   */
+  calculateParameterScore(maxParams, totalFunctions = 0) {
+    if (!totalFunctions) return 0;
+    for (const t of this.thresholds.parameters) {
+      if (maxParams <= t.max) return t.score;
+    }
+    return 90;
+  }
+
+  /**
+   * Calculates Size and Structural score S (0–100, 20% weight)
+   *   S = 0.40 * L + 0.35 * N + 0.25 * P
+   */
+  calculateStructuralScore(file) {
+    const totalLines = file.totalLines || 0;
+    const comp = file.complexitySummary || {};
+    const totalFuncs = comp.totalFunctions || 0;
+    const functions = file.functions || [];
+
+    let maxFuncLen = 0;
+    let maxParams = 0;
+    functions.forEach(fn => {
+      if (fn.lineCount && fn.lineCount > maxFuncLen) maxFuncLen = fn.lineCount;
+      if (fn.parameterCount && fn.parameterCount > maxParams) maxParams = fn.parameterCount;
+    });
+
+    const L = this.calculateLengthScore(totalLines, maxFuncLen);
+    const N = this.calculateNestingScore(comp.maxNestingDepth || 0, totalFuncs);
+    const P = this.calculateParameterScore(maxParams, totalFuncs);
+
+    const wL = this.structuralWeights.length;
+    const wN = this.structuralWeights.nesting;
+    const wP = this.structuralWeights.parameters;
+
+    const S = parseFloat(((wL * L) + (wN * N) + (wP * P)).toFixed(2));
+
+    return {
+      score: S,
+      details: {
+        lengthScore: L,
+        nestingScore: N,
+        parameterScore: P,
+        weights: { length: wL, nesting: wN, parameters: wP },
+        maxFunctionLength: maxFuncLen,
+        maxParameterCount: maxParams
+      }
+    };
+  }
+
+  /**
+   * Maps numerical risk score (0–100) to severity category
    */
   getSeverity(score) {
     if (score < 25) return SEVERITY_LEVELS.LOW;
@@ -160,139 +212,100 @@ class RiskScorer {
   }
 
   /**
-   * Computes the Technical Debt Risk Score for a single file.
-   * Dynamically re-normalizes active weights when metrics are missing/skipped.
-   *
-   * @param {Object} file - File metrics object
-   * @param {Object} options - Optional weight overrides
-   * @returns {Object} Complete explainable score breakdown
+   * Computes the Technical Debt Risk Score for a single file using:
+   *   R = 0.45 * C + 0.35 * D + 0.20 * S
    */
   scoreFile(file, options = {}) {
     const totalLines = file.totalLines || 0;
 
-    // Edge case: empty or zero-line files
+    // Edge case: empty or 0-line file
     if (totalLines === 0) {
       return {
         riskScore: 0,
         severity: SEVERITY_LEVELS.LOW,
-        remediationPriority: {
-          priority: 'P4',
-          score: 0,
-          label: 'Low Priority'
-        },
-        subScores: {
-          complexity: 0,
-          duplication: 0,
-          structural: 0,
-          dependency: null,
-          churn: null
-        },
-        weightsApplied: {},
+        remediationPriority: { priority: 'P4', score: 0, label: 'Low' },
+        subScores: { complexity: 0, duplication: 0, structural: 0 },
+        structuralDetails: { lengthScore: 0, nestingScore: 0, parameterScore: 0 },
+        weightsApplied: { complexity: 0.45, duplication: 0.35, structural: 0.20 },
         riskFactors: ['Empty file or non-executable content'],
         contributingMetrics: []
       };
     }
 
-    // Evaluate sub-scores
-    const complexityScore = this.calculateComplexityScore(file.complexitySummary);
-    const duplicationScore = this.normalizeDuplication(file.duplicatePercentage || 0);
-    const structuralScore = this.normalizeStructuralMetrics(totalLines, file.maxLineLength || 0);
+    const comp = file.complexitySummary || {};
+    const totalFuncs = comp.totalFunctions || 0;
+    const maxComp = comp.maxComplexity || 0;
 
-    // Dependency and Churn metrics (null if omitted / skipped)
-    const dependencyScore = file.dependencyRisk !== undefined && file.dependencyRisk !== null
-      ? Math.max(0, Math.min(100, file.dependencyRisk))
-      : null;
+    // Compute components
+    const C = this.calculateComplexityScore(maxComp, totalFuncs);
+    const D = this.calculateDuplicationScore(file.duplicatePercentage || 0);
+    const structResult = this.calculateStructuralScore(file);
+    const S = structResult.score;
 
-    const churnScore = file.churnRisk !== undefined && file.churnRisk !== null
-      ? Math.max(0, Math.min(100, file.churnRisk))
-      : null;
-
-    const rawSubScores = {
-      complexity: complexityScore,
-      duplication: duplicationScore,
-      structural: structuralScore,
-      dependency: dependencyScore,
-      churn: churnScore
+    // Active weights (default: C=0.45, D=0.35, S=0.20)
+    const activeWeights = {
+      complexity: options.weights?.complexity !== undefined ? options.weights.complexity : this.weights.complexity,
+      duplication: options.weights?.duplication !== undefined ? options.weights.duplication : this.weights.duplication,
+      structural: options.weights?.structural !== undefined ? options.weights.structural : this.weights.structural
     };
 
-    // Determine active weights
-    const activeWeightsConfig = { ...this.weights, ...(options.weights || {}) };
-    const activeDimensions = Object.keys(rawSubScores).filter(
-      key => rawSubScores[key] !== null && rawSubScores[key] !== undefined
-    );
+    // Calculate R = 0.45*C + 0.35*D + 0.20*S
+    const weightedC = parseFloat((activeWeights.complexity * C).toFixed(2));
+    const weightedD = parseFloat((activeWeights.duplication * D).toFixed(2));
+    const weightedS = parseFloat((activeWeights.structural * S).toFixed(2));
 
-    const sumActiveWeights = activeDimensions.reduce(
-      (sum, key) => sum + (activeWeightsConfig[key] || 0),
-      0
-    );
+    let R = parseFloat((weightedC + weightedD + weightedS).toFixed(1));
+    R = Math.min(100, Math.max(0, R));
 
-    const normalizedWeights = {};
-    activeDimensions.forEach(key => {
-      normalizedWeights[key] = sumActiveWeights > 0
-        ? parseFloat(((activeWeightsConfig[key] || 0) / sumActiveWeights).toFixed(4))
-        : 0;
-    });
-
-    // Calculate weighted sum
-    let totalScore = 0;
-    const contributingMetrics = [];
-
-    activeDimensions.forEach(key => {
-      const weight = normalizedWeights[key];
-      const raw = rawSubScores[key];
-      const weighted = parseFloat((raw * weight).toFixed(2));
-      totalScore += weighted;
-
-      contributingMetrics.push({
-        dimension: key,
-        rawScore: raw,
-        activeWeight: weight,
-        weightedPoints: weighted,
+    // Contributing metrics breakdown
+    const contributingMetrics = [
+      {
+        dimension: 'complexity',
+        rawScore: C,
+        activeWeight: activeWeights.complexity,
+        weightedPoints: weightedC,
+        contributionPercentage: R > 0 ? parseFloat(((weightedC / R) * 100).toFixed(1)) : 0,
         status: 'EVALUATED'
-      });
-    });
-
-    // Record skipped / missing dimensions
-    Object.keys(DEFAULT_WEIGHTS).forEach(key => {
-      if (!activeDimensions.includes(key)) {
-        contributingMetrics.push({
-          dimension: key,
-          rawScore: null,
-          activeWeight: 0,
-          weightedPoints: 0,
-          status: 'SKIPPED_OR_MISSING'
-        });
+      },
+      {
+        dimension: 'duplication',
+        rawScore: D,
+        activeWeight: activeWeights.duplication,
+        weightedPoints: weightedD,
+        contributionPercentage: R > 0 ? parseFloat(((weightedD / R) * 100).toFixed(1)) : 0,
+        status: 'EVALUATED'
+      },
+      {
+        dimension: 'structural',
+        rawScore: S,
+        activeWeight: activeWeights.structural,
+        weightedPoints: weightedS,
+        contributionPercentage: R > 0 ? parseFloat(((weightedS / R) * 100).toFixed(1)) : 0,
+        status: 'EVALUATED',
+        subBreakdown: structResult.details
       }
-    });
+    ];
 
-    totalScore = Math.min(100, Math.max(0, parseFloat(totalScore.toFixed(1))));
-
-    // Calculate percentage contribution of each evaluated dimension
-    contributingMetrics.forEach(metric => {
-      if (metric.status === 'EVALUATED') {
-        metric.contributionPercentage = totalScore > 0
-          ? parseFloat(((metric.weightedPoints / totalScore) * 100).toFixed(1))
-          : 0;
-      } else {
-        metric.contributionPercentage = 0;
-      }
-    });
-
-    // Sort contributing metrics descending by weighted impact
+    // Sort descending by weighted points
     contributingMetrics.sort((a, b) => b.weightedPoints - a.weightedPoints);
 
-    // Generate human-readable risk factors
-    const riskFactors = this.generateRiskFactors(file, rawSubScores, totalScore);
+    // Explainable human-readable risk factors
+    const riskFactors = this.generateRiskFactors(file, C, D, structResult.details, R);
 
-    // Calculate remediation priority
-    const remediationPriority = this.calculateRemediationPriority(file, totalScore);
+    // Remediation priority
+    const remediationPriority = this.calculateRemediationPriority(file, R);
 
     return {
-      riskScore: totalScore,
-      severity: this.getSeverity(totalScore),
+      riskScore: R,
+      severity: this.getSeverity(R),
       remediationPriority,
-      subScores: rawSubScores,
-      weightsApplied: normalizedWeights,
+      subScores: {
+        complexity: C,
+        duplication: D,
+        structural: S
+      },
+      structuralDetails: structResult.details,
+      weightsApplied: activeWeights,
       riskFactors,
       contributingMetrics
     };
@@ -301,56 +314,46 @@ class RiskScorer {
   /**
    * Generates clear, human-understandable explanations for why a file received its score.
    */
-  generateRiskFactors(file, subScores, totalScore) {
+  generateRiskFactors(file, C, D, structDetails, totalScore) {
     const factors = [];
     const comp = file.complexitySummary || {};
 
-    if (comp.maxComplexity > 10) {
+    if (C >= 65) {
       const worstFunc = (file.functions || []).reduce(
         (prev, curr) => (curr.cyclomaticComplexity > (prev?.cyclomaticComplexity || 0) ? curr : prev),
         null
       );
-      const funcName = worstFunc ? `'${worstFunc.name}'` : 'highest function';
+      const funcName = worstFunc ? `'${worstFunc.name}'` : 'a function';
       factors.push(
-        `High cyclomatic complexity: ${funcName} reaches McCabe complexity of ${comp.maxComplexity} (threshold: >10)`
+        `High cyclomatic complexity: ${funcName} reaches complexity of ${comp.maxComplexity} (complexity score: ${C}/100)`
       );
+    } else if (C === 35) {
+      factors.push(`Moderate cyclomatic complexity: max complexity is ${comp.maxComplexity} (score: 35/100)`);
     }
 
-    if (comp.maxNestingDepth >= 4) {
-      factors.push(
-        `Deep nesting depth: control-flow indents to ${comp.maxNestingDepth} levels (threshold: >=4)`
-      );
+    if (D >= 70) {
+      factors.push(`Significant code duplication: ${file.duplicatePercentage}% of lines duplicated (duplication score: ${D}/100)`);
+    } else if (D >= 40) {
+      factors.push(`Moderate code duplication: ${file.duplicatePercentage}% of lines duplicated (score: ${D}/100)`);
     }
 
-    if (comp.complexFunctionCount > 1) {
-      factors.push(
-        `High complexity density: ${comp.complexFunctionCount} functions exceed acceptable McCabe thresholds`
-      );
+    if (structDetails.nestingScore >= 65) {
+      factors.push(`Deep nesting depth: control flow reaches ${comp.maxNestingDepth} levels (threshold: >=3)`);
     }
 
-    if (file.duplicatePercentage >= 20) {
-      factors.push(
-        `Significant code duplication: ${file.duplicatePercentage}% of lines are identical duplicate blocks`
-      );
+    if (structDetails.lengthScore >= 65) {
+      factors.push(`Large file or functions: spans ${file.totalLines} lines (max function length: ${structDetails.maxFunctionLength} lines)`);
     }
 
-    if (file.totalLines > 500) {
-      factors.push(
-        `Large file size: ${file.totalLines} lines of code indicates poor modularity / God-object risk (threshold: >500 LOC)`
-      );
-    }
-
-    if (file.maxLineLength > 200) {
-      factors.push(
-        `Excessive line length: maximum line spans ${file.maxLineLength} characters (threshold: >200 chars)`
-      );
+    if (structDetails.parameterScore >= 65) {
+      factors.push(`High parameter count: functions take up to ${structDetails.maxParameterCount} parameters (threshold: >4)`);
     }
 
     if (factors.length === 0) {
       if (totalScore < 25) {
-        factors.push('Clean code structure: all metrics within recommended thresholds');
+        factors.push('Clean code structure: all complexity, duplication, and structural metrics within low-risk thresholds');
       } else {
-        factors.push('Moderate cumulative structural debt distributed across multiple metrics');
+        factors.push('Cumulative moderate structural debt distributed across multiple metrics');
       }
     }
 
@@ -358,13 +361,8 @@ class RiskScorer {
   }
 
   /**
-   * Calculates a separate Remediation Priority Score based on:
+   * Calculates Remediation Priority Score:
    *   Priority = (RiskScore * ImpactMultiplier) / EffortFactor
-   *
-   * Assumptions:
-   *  - Impact is elevated if the file contains numerous functions or high-complexity entry points.
-   *  - Effort increases with monolithic LOC and volume of complex functions to refactor.
-   *  - Highest priority (P1) is assigned to files with high risk and high impact-to-effort payoff.
    */
   calculateRemediationPriority(file, riskScore) {
     if (riskScore === 0) {
@@ -376,12 +374,10 @@ class RiskScorer {
     const complexCount = comp.complexFunctionCount || 0;
     const totalFuncs = comp.totalFunctions || 0;
 
-    // Impact Factor (1.0 to 1.5): files containing many functions have wider blast radius
     let impactMultiplier = 1.0;
     if (complexCount > 0) impactMultiplier += Math.min(0.3, complexCount * 0.1);
     if (totalFuncs > 5) impactMultiplier += 0.2;
 
-    // Effort Factor (1.0 to 2.5): larger files and more complex functions require higher effort
     let effortFactor = 1.0;
     if (totalLines > 300) effortFactor += Math.min(0.8, (totalLines - 300) / 1000);
     if (complexCount > 1) effortFactor += Math.min(0.7, (complexCount - 1) * 0.2);
@@ -416,12 +412,6 @@ class RiskScorer {
 
   /**
    * Scores an entire scanned repository report.
-   * Enriches each file with risk metrics, calculates repository-level aggregates,
-   * identifies top hotspots, and generates actionable recommendations.
-   *
-   * @param {Object} scanReport - Full scan result from scanner/analyzer
-   * @param {Object} options - Configuration overrides
-   * @returns {Object} Enriched scan report
    */
   scoreRepository(scanReport, options = {}) {
     if (!scanReport || !Array.isArray(scanReport.files)) {
@@ -455,6 +445,7 @@ class RiskScorer {
         remediationPriority: scoreData.remediationPriority,
         riskBreakdown: {
           subScores: scoreData.subScores,
+          structuralDetails: scoreData.structuralDetails,
           weightsApplied: scoreData.weightsApplied,
           riskFactors: scoreData.riskFactors,
           contributingMetrics: scoreData.contributingMetrics
@@ -471,7 +462,7 @@ class RiskScorer {
     // Rank files in descending order of risk score
     const rankedFiles = [...scoredFiles].sort((a, b) => b.riskScore - a.riskScore);
 
-    // Top hotspots (files with High or Critical severity, or top 5)
+    // Top hotspots (files with High or Critical severity, or top 10)
     const hotspots = rankedFiles
       .filter(f => f.riskScore >= 50)
       .slice(0, 10)
@@ -484,7 +475,7 @@ class RiskScorer {
         topFactor: f.riskBreakdown.riskFactors[0] || 'Cumulative technical debt'
       }));
 
-    // Generate actionable findings & recommendations
+    // Actionable repository recommendations
     const recommendations = this.generateRepositoryRecommendations(scoredFiles, distribution);
 
     scanReport.files = scoredFiles;
@@ -500,16 +491,14 @@ class RiskScorer {
         critical: fileCount > 0 ? parseFloat(((distribution.CRITICAL / fileCount) * 100).toFixed(1)) : 0
       },
       topHotspots: hotspots,
-      activeWeights: scoredFiles[0]?.riskBreakdown?.weightsApplied || {},
+      activeWeights: scoredFiles[0]?.riskBreakdown?.weightsApplied || this.weights,
+      formula: 'R = 0.45*C + 0.35*D + 0.20*S',
       recommendations
     };
 
     return scanReport;
   }
 
-  /**
-   * Synthesizes actionable engineering recommendations based on aggregate debt patterns.
-   */
   generateRepositoryRecommendations(files, distribution) {
     const recs = [];
 
@@ -518,40 +507,37 @@ class RiskScorer {
         id: 'REC_CRITICAL_FILES',
         severity: 'CRITICAL',
         title: `Address ${distribution.CRITICAL} Critical-Risk Files Immediately`,
-        description: `${distribution.CRITICAL} file(s) exhibit dangerous combinations of extreme complexity, duplication, or monolithic size. Prioritize these in upcoming refactoring sprints.`
+        description: `${distribution.CRITICAL} file(s) exhibit high complexity, duplication, or monolithic structure. Prioritize these in upcoming refactoring sprints.`
       });
     }
 
-    // Check for high-duplication prevalence
-    const highDupFiles = files.filter(f => (f.duplicatePercentage || 0) >= 30);
+    const highDupFiles = files.filter(f => (f.duplicatePercentage || 0) >= 20);
     if (highDupFiles.length > 0) {
       recs.push({
         id: 'REC_CONSOLIDATE_CLONES',
         severity: 'HIGH',
-        title: `Extract Shared Utilities for ${highDupFiles.length} Highly Duplicated Files`,
-        description: `Over 30% of code in ${highDupFiles.length} file(s) consists of cloned blocks. Consolidating repeated algorithms into shared modules will reduce maintenance overhead.`
+        title: `Extract Shared Logic for ${highDupFiles.length} Highly Duplicated Files`,
+        description: `Over 20% of code in ${highDupFiles.length} file(s) consists of cloned blocks. Consolidating repeated patterns into shared modules will reduce maintenance overhead.`
       });
     }
 
-    // Check for complex functions
     const complexFuncCount = files.reduce((acc, f) => acc + (f.complexitySummary?.complexFunctionCount || 0), 0);
     if (complexFuncCount > 0) {
       recs.push({
         id: 'REC_DECOMPOSE_FUNCTIONS',
         severity: 'MEDIUM',
         title: `Decompose ${complexFuncCount} Functions with Cyclomatic Complexity > 10`,
-        description: `Functions exceeding McCabe complexity 10 require extensive branch testing and are prone to regression. Break them down into smaller, single-responsibility helpers.`
+        description: `Functions exceeding McCabe complexity 10 require extensive branch testing and are prone to regression. Break them down into smaller helpers.`
       });
     }
 
-    // Check for large files
-    const largeFiles = files.filter(f => (f.totalLines || 0) > 500);
+    const largeFiles = files.filter(f => (f.totalLines || 0) > 300);
     if (largeFiles.length > 0) {
       recs.push({
         id: 'REC_MODULARIZE_GOD_OBJECTS',
         severity: 'MEDIUM',
-        title: `Modularize ${largeFiles.length} Monolithic Files Exceeding 500 LOC`,
-        description: `Large files violate the Single Responsibility Principle and increase merge conflicts. Split them into domain-driven sub-components.`
+        title: `Modularize ${largeFiles.length} Files Exceeding 300 LOC`,
+        description: `Large files violate the Single Responsibility Principle. Consider splitting them into focused sub-modules.`
       });
     }
 
@@ -560,7 +546,7 @@ class RiskScorer {
         id: 'REC_MAINTAIN_STANDARD',
         severity: 'LOW',
         title: 'Maintain Current High Codebase Health Standards',
-        description: 'No severe technical debt hotspots detected. Continue adhering to modular design and automated regression scanning.'
+        description: 'No severe technical debt hotspots detected. Continue adhering to modular design.'
       });
     }
 
@@ -571,5 +557,6 @@ class RiskScorer {
 module.exports = new RiskScorer();
 module.exports.RiskScorer = RiskScorer;
 module.exports.DEFAULT_WEIGHTS = DEFAULT_WEIGHTS;
+module.exports.DEFAULT_STRUCTURAL_WEIGHTS = DEFAULT_STRUCTURAL_WEIGHTS;
+module.exports.DEFAULT_THRESHOLDS = DEFAULT_THRESHOLDS;
 module.exports.SEVERITY_LEVELS = SEVERITY_LEVELS;
-
