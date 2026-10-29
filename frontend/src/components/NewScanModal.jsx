@@ -56,7 +56,12 @@ export default function NewScanModal({ repositories, activeRepo, onClose, onScan
       }
 
       const scanRes = await api.startScan(payload, isSync);
-      onScanStarted(scanRes.data);
+      const scanData = scanRes.data || {};
+      const normalizedScan = {
+        id: scanData.id || scanData.scanId,
+        ...scanData
+      };
+      onScanStarted(normalizedScan);
       onClose();
     } catch (err) {
       setError(err.message || 'Failed to trigger scan.');

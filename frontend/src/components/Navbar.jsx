@@ -16,7 +16,6 @@ export default function Navbar({
       <div className="brand-section">
         <Activity size={22} className="text-accent" style={{ color: 'var(--accent-blue)' }} />
         <span className="brand-title">CodeInsight</span>
-        <span className="brand-badge">BTech Final Year Project</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -61,7 +60,7 @@ export default function Navbar({
               <Clock size={14} style={{ color: 'var(--sev-mod)' }} />
             )}
             <span className="font-mono">
-              Scan: {activeScan.id.slice(0, 10)}... ({activeScan.status})
+              Scan: {String(activeScan.id || activeScan.scanId || 'Scan').slice(0, 10)}... ({activeScan.status || 'running'})
             </span>
           </div>
         )}

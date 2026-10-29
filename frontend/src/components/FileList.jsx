@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Filter, ArrowUpDown, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function FileList({ files, onSelectFile }) {
+export default function FileList({ files = [], onSelectFile }) {
   const [search, setSearch] = useState('');
   const [severityFilter, setSeverityFilter] = useState('ALL');
   const [langFilter, setLangFilter] = useState('ALL');
@@ -11,7 +11,8 @@ export default function FileList({ files, onSelectFile }) {
   const pageSize = 15;
 
   // Filter logic
-  let filtered = files.filter((f) => {
+  const safeFiles = Array.isArray(files) ? files : [];
+  let filtered = safeFiles.filter((f) => {
     if (severityFilter !== 'ALL' && f.severity !== severityFilter) return false;
     if (langFilter !== 'ALL' && f.language !== langFilter) return false;
     if (search) {

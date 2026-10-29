@@ -37,6 +37,8 @@ export default function DuplicateViewer({ scanId }) {
 
     if (scanId) {
       loadDuplicates();
+    } else {
+      setLoading(false);
     }
     return () => {
       isMounted = false;

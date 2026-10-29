@@ -79,7 +79,8 @@ export default function App() {
   // 3. Load Scan Details when Active Scan changes
   const loadActiveScanDetails = useCallback(async (scan) => {
     if (!scan) return;
-    if (scan.status !== 'completed') {
+    const scanId = scan.id || scan.scanId;
+    if (!scanId || scan.status !== 'completed') {
       setScanSummary(null);
       setTechnicalDebt(null);
       setSourceFiles([]);
@@ -89,8 +90,8 @@ export default function App() {
     try {
       setLoading(true);
       const [sumRes, filesRes] = await Promise.all([
-        api.getScanSummary(scan.id),
-        api.getScanFiles(scan.id, { limit: 500 })
+        api.getScanSummary(scanId),
+        api.getScanFiles(scanId, { limit: 500 })
       ]);
 
       setScanSummary(sumRes.data?.summary || null);
@@ -111,13 +112,14 @@ export default function App() {
 
   // 4. Polling for background/asynchronous scans
   useEffect(() => {
-    if (!activeScan || activeScan.status === 'completed' || activeScan.status === 'failed') {
+    const scanId = activeScan?.id || activeScan?.scanId;
+    if (!activeScan || !scanId || activeScan.status === 'completed' || activeScan.status === 'failed') {
       return;
     }
 
     const interval = setInterval(async () => {
       try {
-        const statusRes = await api.getScanStatus(activeScan.id);
+        const statusRes = await api.getScanStatus(scanId);
         const updatedStatus = statusRes.data?.status;
         if (updatedStatus && updatedStatus !== activeScan.status) {
           setActiveScan((prev) => ({ ...prev, status: updatedStatus }));
@@ -134,16 +136,33 @@ export default function App() {
   }, [activeScan, activeRepo, loadScans]);
 
   // Handlers
-  const handleScanStarted = (newScan) => {
+  const handleScanStarted = async (newScan) => {
     if (newScan) {
-      setActiveScan(newScan);
-      loadScans(activeRepo?.id || newScan.repoId);
+      const scanId = newScan.id || newScan.scanId;
+      const normalized = { ...newScan, id: scanId };
+      setActiveScan(normalized);
+
+      // If this scan belongs to a new repository, reload repositories
+      if (newScan.repoId && (!activeRepo || activeRepo.id !== newScan.repoId)) {
+        try {
+          const res = await api.getRepositories();
+          const repos = res.data || [];
+          setRepositories(repos);
+          const found = repos.find((r) => r.id === newScan.repoId);
+          if (found) setActiveRepo(found);
+        } catch (_) {}
+      }
+
+      // Refresh scans for this repository
+      loadScans(newScan.repoId || activeRepo?.id);
     }
   };
 
   const handleExport = (format) => {
     if (!activeScan) return;
-    const url = api.getExportUrl(activeScan.id, format);
+    const scanId = activeScan.id || activeScan.scanId;
+    if (!scanId) return;
+    const url = api.getExportUrl(scanId, format);
     window.open(url, '_blank');
   };
 
@@ -209,7 +228,7 @@ export default function App() {
           >
             <div>
               <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Scan in Progress ({activeScan.status.toUpperCase()})
+                Scan in Progress ({String(activeScan.status || 'running').toUpperCase()})
               </span>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
                 Executing Tree-sitter AST parsing, duplicate token detection, and risk score calculation...

@@ -31,6 +31,7 @@ class ScanController {
         success: true,
         message: isSync ? 'Scan completed synchronously.' : 'Scan enqueued successfully.',
         data: {
+          id: scan.id,
           scanId: scan.id,
           repoId: scan.repoId,
           repoPath: scan.repoPath,
