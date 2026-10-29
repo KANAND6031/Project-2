@@ -96,3 +96,5 @@ Across the whole repository:
 $$\text{OverallDuplication} = \frac{\sum_{F \in \text{Repo}} |D(F)|}{\sum_{F \in \text{Repo}} \text{TotalLines}(F)} \times 100\%$$
 
 
+
+
