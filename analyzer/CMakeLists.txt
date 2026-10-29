@@ -36,12 +36,14 @@ set(SCANNER_SOURCES
     src/scanner.cpp
     src/ast_parser.cpp
     src/duplicate_detector.cpp
+    src/risk_scorer.cpp
 )
 
 set(SCANNER_HEADERS
     include/scanner.hpp
     include/ast_parser.hpp
     include/duplicate_detector.hpp
+    include/risk_scorer.hpp
 )
 
 # Standalone CLI Executable
@@ -70,3 +72,12 @@ target_include_directories(test-duplicates PRIVATE
 )
 target_link_libraries(test-duplicates PRIVATE treesitter)
 set_target_properties(test-duplicates PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+# Unit Test Executable: Technical Debt Risk Scorer
+add_executable(test-risk-scorer tests/test_risk_scorer.cpp ${SCANNER_SOURCES} ${SCANNER_HEADERS})
+target_include_directories(test-risk-scorer PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+    ${TREE_SITTER_DIR}/include
+)
+target_link_libraries(test-risk-scorer PRIVATE treesitter)
+set_target_properties(test-risk-scorer PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")

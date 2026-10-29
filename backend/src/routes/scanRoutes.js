@@ -8,7 +8,7 @@ const analyzerService = require('../services/analyzerService');
  */
 router.post('/run', async (req, res) => {
   try {
-    const { repoPath } = req.body;
+    const { repoPath, weights, timeoutMs } = req.body;
 
     if (!repoPath) {
       return res.status(400).json({
@@ -17,7 +17,7 @@ router.post('/run', async (req, res) => {
       });
     }
 
-    const report = await analyzerService.runScan(repoPath);
+    const report = await analyzerService.runScan(repoPath, { weights, timeoutMs });
 
     return res.status(200).json({
       success: true,

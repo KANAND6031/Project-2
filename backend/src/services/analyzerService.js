@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const astEngine = require('./astEngine');
 const duplicateService = require('./duplicateService');
+const riskScorer = require('./riskScorer');
 
 class AnalyzerService {
   constructor() {
@@ -29,7 +30,7 @@ class AnalyzerService {
    * Tries the standalone C++ executable first, with automatic fallback
    * to AST engine if host security policies (such as Windows WDAC) intercept binary execution.
    */
-  async runScan(repoDirectory, timeoutMs = 30000) {
+  async runScan(repoDirectory, options = {}) {
     if (!repoDirectory || typeof repoDirectory !== 'string') {
       throw new Error('Invalid repository directory specified.');
     }
@@ -44,14 +45,17 @@ class AnalyzerService {
       throw new Error(`Path is not a directory: ${absoluteTarget}`);
     }
 
+    const scanOptions = typeof options === 'number' ? { timeoutMs: options } : options;
+    const timeoutMs = scanOptions.timeoutMs || 30000;
+
     // Try native C++ analysis engine first
     if (fs.existsSync(this.executablePath)) {
       try {
         const nativeReport = await this.executeNativeBinary(absoluteTarget, timeoutMs);
         if (nativeReport.summary && nativeReport.summary.totalFunctions > 0 && nativeReport.duplicateGroups) {
-          return nativeReport;
+          return riskScorer.scoreRepository(nativeReport, scanOptions);
         }
-        return this.enrichWithAstAndDuplication(nativeReport, absoluteTarget);
+        return this.enrichWithAstAndDuplication(nativeReport, absoluteTarget, scanOptions);
       } catch (err) {
         console.warn(
           `[CodeInsight Engine] Native binary execution bypassed (${err.message}). Engaging integrated AST & clone analysis engine.`
@@ -59,7 +63,7 @@ class AnalyzerService {
       }
     }
 
-    return this.runFallbackScan(absoluteTarget);
+    return this.runFallbackScan(absoluteTarget, scanOptions);
   }
 
   executeNativeBinary(absoluteTarget, timeoutMs) {
@@ -117,7 +121,7 @@ class AnalyzerService {
   /**
    * Enriches native scanner report with AST function metrics & duplicate groups if needed.
    */
-  enrichWithAstAndDuplication(report, rootDir) {
+  enrichWithAstAndDuplication(report, rootDir, scanOptions = {}) {
     let totalFuncs = 0;
     let sumComp = 0;
     let maxComp = 0;
@@ -180,13 +184,14 @@ class AnalyzerService {
       file.duplicatePercentage = dupReport.duplicatePercentageByFile[file.relativePath] || 0;
     }
 
-    return report;
+    // Phase 7 Technical Debt Risk Scoring
+    return riskScorer.scoreRepository(report, scanOptions);
   }
 
   /**
    * Pure Node.js fallback scanner with AST parsing and code duplication detection.
    */
-  runFallbackScan(rootDir) {
+  runFallbackScan(rootDir, scanOptions = {}) {
     const report = {
       engineVersion: '1.2.0-fallback',
       repoPath: rootDir.replace(/\\/g, '/'),
@@ -464,7 +469,8 @@ class AnalyzerService {
       f.duplicatePercentage = dupReport.duplicatePercentageByFile[f.relativePath] || 0;
     }
 
-    return report;
+    // Phase 7 Technical Debt Risk Scoring
+    return riskScorer.scoreRepository(report, scanOptions);
   }
 }
 

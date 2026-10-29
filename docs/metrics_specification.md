@@ -92,8 +92,97 @@ CodeInsight implements an exact, normalized token-based **Type 1** clone detecti
 For a file $F$ containing $N$ total lines, where $D(F)$ is the set of unique line indices involved in any clone fragment:
 $$\text{DuplicationPercentage}(F) = \frac{|D(F)|}{N} \times 100\%$$
 
-Across the whole repository:
-$$\text{OverallDuplication} = \frac{\sum_{F \in \text{Repo}} |D(F)|}{\sum_{F \in \text{Repo}} \text{TotalLines}(F)} \times 100\%$$
+---
+
+## 6. Technical Debt Risk Scoring (Phase 7)
+
+### 6.1 Multi-Dimensional Heuristic Model
+Technical debt cannot be characterized by a single univariate metric. CodeInsight computes an explainable, multi-dimensional **Technical Debt Risk Score** ($R \in [0, 100]$) combining structural, algorithmic, and duplication indicators.
+
+The default provisional weights are:
+- **$W_{\text{complexity}} = 30\%$**: Cyclomatic complexity & control-flow nesting depth
+- **$W_{\text{duplication}} = 25\%$**: Normalized duplicate code percentage
+- **$W_{\text{dependency}} = 20\%$**: Dependency coupling & cyclic risk (extensible when Phase 5 is active)
+- **$W_{\text{churn}} = 15\%$**: Historical Git modification frequency & churn (extensible when Phase 6 is active)
+- **$W_{\text{structural}} = 10\%$**: Physical file size (LOC) and max line length
+
+### 6.2 Dynamic Active Weight Re-Normalization
+When certain metric dimensions are omitted (such as when Phase 5 dependency analysis or Phase 6 Git history analysis are skipped or deactivated), the engine dynamically **re-normalizes active weights** so their sum remains exactly $1.0$ ($100\%$):
+
+$$W'_i = \frac{W_i}{\sum_{k \in \text{Active}} W_k}$$
+
+For example, when dependency and churn metrics are omitted:
+$$\sum_{k \in \text{Active}} W_k = 0.30 + 0.25 + 0.10 = 0.65$$
+$$W'_{\text{complexity}} = \frac{0.30}{0.65} \approx 46.15\%$$
+$$W'_{\text{duplication}} = \frac{0.25}{0.65} \approx 38.46\%$$
+$$W'_{\text{structural}} = \frac{0.10}{0.65} \approx 15.38\%$$
+
+### 6.3 Metric Normalization Functions (0–100 Scale)
+
+#### 1. Complexity Dimension ($S_{\text{complexity}} \in [0, 100]$)
+Blends maximum cyclomatic complexity ($M_{\max}$) with maximum nesting depth ($N_{\max}$):
+
+$$\text{NormMaxComplexity}(M) = \begin{cases} 
+0, & M \le 1 \\
+\frac{M}{10} \times 30, & 1 < M \le 10 \\
+30 + \frac{M - 10}{15} \times 40, & 10 < M \le 25 \\
+70 + \frac{M - 25}{25} \times 20, & 25 < M \le 50 \\
+\min\left(100, 90 + \frac{M - 50}{50} \times 10\right), & M > 50 
+\end{cases}$$
+
+$$\text{NormNestingDepth}(N) = \begin{cases}
+0, & N \le 1 \\
+\frac{N - 1}{2} \times 40, & 1 < N \le 3 \\
+40 + \frac{N - 3}{2} \times 40, & 3 < N \le 5 \\
+\min\left(100, 80 + (N - 5) \times 10\right), & N > 5
+\end{cases}$$
+
+If the file contains functions ($K > 0$):
+$$S_{\text{complexity}} = \min\left(100, \; 0.65 \times \text{NormMaxComplexity}(M_{\max}) + 0.35 \times \text{NormNestingDepth}(N_{\max}) + \text{Bonus}(C_{\text{high}})\right)$$
+where $\text{Bonus}(C_{\text{high}}) = \min(15, (C_{\text{high}} - 1) \times 3)$ when multiple functions exceed McCabe complexity 10.
+
+#### 2. Duplication Dimension ($S_{\text{duplication}} \in [0, 100]$)
+Non-linear saturation curve mapping clone percentage $P \in [0, 100]$:
+$$S_{\text{duplication}} = \begin{cases}
+0, & P = 0 \\
+\frac{P}{10} \times 20, & 0 < P \le 10 \\
+20 + \frac{P - 10}{20} \times 35, & 10 < P \le 30 \\
+55 + \frac{P - 30}{30} \times 30, & 30 < P \le 60 \\
+\min\left(100, 85 + \frac{P - 60}{40} \times 15\right), & P > 60
+\end{cases}$$
+
+#### 3. Structural Dimension ($S_{\text{structural}} \in [0, 100]$)
+Measures physical monolithic size (Lines of Code) and formatting density (excessive line length):
+$$S_{\text{LOC}} = \begin{cases}
+\frac{\text{LOC}}{100} \times 15, & \text{LOC} \le 100 \\
+15 + \frac{\text{LOC} - 100}{200} \times 20, & 100 < \text{LOC} \le 300 \\
+35 + \frac{\text{LOC} - 300}{450} \times 35, & 300 < \text{LOC} \le 750 \\
+70 + \frac{\text{LOC} - 750}{750} \times 20, & 750 < \text{LOC} \le 1500 \\
+\min\left(100, 90 + \frac{\text{LOC} - 1500}{1500} \times 10\right), & \text{LOC} > 1500
+\end{cases}$$
+$$S_{\text{structural}} = \min\left(100, \; 0.9 \times S_{\text{LOC}} + \min\left(10, \frac{\max(\text{LineLen}) - 150}{150} \times 10\right)\right)$$
+
+### 6.4 Severity Categorization
+- **$0 - 24$**: **Low Risk** (Well-structured, maintainable code)
+- **$25 - 49$**: **Moderate Risk** (Moderate complexity; monitor during sprints)
+- **$50 - 74$**: **High Risk** (Noticeable architectural debt; prioritize for refactoring)
+- **$75 - 100$**: **Critical Risk** (Severe technical debt hotspot; refactor immediately)
+
+### 6.5 Remediation Priority Heuristic
+To assist engineering leads in triage, CodeInsight calculates an explainable **Remediation Priority Score**:
+
+$$\text{PriorityScore} = \min\left(100, \; \frac{\text{RiskScore} \times \text{ImpactMultiplier}}{\text{EffortFactor}}\right)$$
+
+- **$\text{ImpactMultiplier} \in [1.0, 1.5]$**: Elevated when a file houses critical functions with many dependents or multiple high-complexity procedures ($C_{\text{high}} > 0$).
+- **$\text{EffortFactor} \in [1.0, 2.5]$**: Estimated refactoring friction based on monolithic size ($\text{LOC} > 300$) and complex function volume.
+- **Tiers**:
+  - **P1 (Urgent)**: $\text{RiskScore} \ge 75$ or $\text{PriorityScore} \ge 70$
+  - **P2 (High)**: $\text{RiskScore} \ge 50$ or $\text{PriorityScore} \ge 45$
+  - **P3 (Medium)**: $\text{RiskScore} \ge 25$ or $\text{PriorityScore} \ge 25$
+  - **P4 (Low)**: Maintain as-is
+
+> **Academic Disclaimer**: Technical debt scores and remediation priority levels are static analysis heuristics, not empirical guarantees of runtime defects or software failure. They serve as transparent triage guides to focus code review and refactoring efforts.
+
 
 
 

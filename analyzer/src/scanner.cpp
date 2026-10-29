@@ -740,6 +740,40 @@ ScanResult DirectoryScanner::scan(const std::string& rootDirectory) {
         result.summary.averageComplexity = sumComp / static_cast<double>(result.summary.totalFunctions);
     }
 
+    // Phase 4 Duplicate Code Detection
+    DuplicateConfig dupConfig;
+    dupConfig.minBlockLines = config_.minDuplicateLines;
+    dupConfig.minTokenChars = config_.minDuplicateTokenChars;
+    DuplicateDetector dupDetector(dupConfig);
+
+    std::vector<std::pair<std::string, std::string>> filesWithContent;
+    std::map<std::string, size_t> fileTotalLines;
+
+    for (const auto& file : result.files) {
+        std::ifstream srcFile(file.absolutePath.c_str(), std::ios::in | std::ios::binary);
+        if (srcFile.is_open()) {
+            std::string content((std::istreambuf_iterator<char>(srcFile)), std::istreambuf_iterator<char>());
+            filesWithContent.push_back({file.relativePath, content});
+            fileTotalLines[file.relativePath] = file.totalLines;
+        }
+    }
+
+    DuplicateReport dupReport = dupDetector.analyze(filesWithContent, fileTotalLines);
+    result.duplicateGroups = dupReport.groups;
+    result.summary.totalDuplicateBlocks = dupReport.totalDuplicateBlocks;
+    result.summary.totalDuplicateLines = dupReport.totalDuplicateLines;
+    result.summary.overallDuplicationPercentage = dupReport.overallDuplicationPercentage;
+
+    for (auto& f : result.files) {
+        auto itLines = dupReport.duplicateLinesByFile.find(f.relativePath);
+        f.duplicateLines = (itLines != dupReport.duplicateLinesByFile.end()) ? itLines->second : 0;
+        auto itPct = dupReport.duplicatePercentageByFile.find(f.relativePath);
+        f.duplicatePercentage = (itPct != dupReport.duplicatePercentageByFile.end()) ? itPct->second : 0.0;
+    }
+
+    // Phase 7 Technical Debt Risk Scoring
+    riskScorer_.scoreRepository(result, &config_.riskWeights);
+
     return result;
 }
 
@@ -767,6 +801,11 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
     ss << "    \"averageComplexity\": " << result.summary.averageComplexity << ",\n";
     ss << "    \"maxComplexity\": " << result.summary.maxComplexity << ",\n";
     ss << "    \"highComplexityFunctionCount\": " << result.summary.highComplexityFunctionCount << ",\n";
+
+    // Phase 4 Duplication summary metrics
+    ss << "    \"totalDuplicateBlocks\": " << result.summary.totalDuplicateBlocks << ",\n";
+    ss << "    \"totalDuplicateLines\": " << result.summary.totalDuplicateLines << ",\n";
+    ss << "    \"overallDuplicationPercentage\": " << result.summary.overallDuplicationPercentage << ",\n";
 
     // filesByLanguage
     ss << "    \"filesByLanguage\": {";
@@ -806,6 +845,51 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
         ss << "      \"hasLongLines\": " << (f.hasLongLines ? "true" : "false") << ",\n";
         ss << "      \"fileSizeBytes\": " << f.fileSizeBytes << ",\n";
 
+        // Phase 4 Duplication metrics
+        ss << "      \"duplicateLines\": " << f.duplicateLines << ",\n";
+        ss << "      \"duplicatePercentage\": " << f.duplicatePercentage << ",\n";
+
+        // Phase 7 Technical Debt Risk metrics
+        ss << "      \"riskScore\": " << f.riskScore << ",\n";
+        ss << "      \"severity\": \"" << f.severity << "\",\n";
+        ss << "      \"remediationPriority\": {\n";
+        ss << "        \"priority\": \"" << f.remediationPriority.priority << "\",\n";
+        ss << "        \"score\": " << f.remediationPriority.score << ",\n";
+        ss << "        \"label\": \"" << f.remediationPriority.label << "\"\n";
+        ss << "      },\n";
+        ss << "      \"riskBreakdown\": {\n";
+        ss << "        \"subScores\": {\n";
+        ss << "          \"complexity\": " << f.riskBreakdown.subScores.complexity << ",\n";
+        ss << "          \"duplication\": " << f.riskBreakdown.subScores.duplication << ",\n";
+        ss << "          \"structural\": " << f.riskBreakdown.subScores.structural << ",\n";
+        ss << "          \"dependency\": null,\n";
+        ss << "          \"churn\": null\n";
+        ss << "        },\n";
+        ss << "        \"riskFactors\": [\n";
+        for (size_t k = 0; k < f.riskBreakdown.riskFactors.size(); ++k) {
+            ss << "          \"" << escapeJsonString(f.riskBreakdown.riskFactors[k]) << "\""
+               << (k + 1 < f.riskBreakdown.riskFactors.size() ? ",\n" : "\n");
+        }
+        ss << "        ],\n";
+        ss << "        \"contributingMetrics\": [\n";
+        for (size_t k = 0; k < f.riskBreakdown.contributingMetrics.size(); ++k) {
+            const auto& cm = f.riskBreakdown.contributingMetrics[k];
+            ss << "          {\n";
+            ss << "            \"dimension\": \"" << cm.dimension << "\",\n";
+            if (cm.hasRawScore) {
+                ss << "            \"rawScore\": " << cm.rawScore << ",\n";
+            } else {
+                ss << "            \"rawScore\": null,\n";
+            }
+            ss << "            \"activeWeight\": " << cm.activeWeight << ",\n";
+            ss << "            \"weightedPoints\": " << cm.weightedPoints << ",\n";
+            ss << "            \"contributionPercentage\": " << cm.contributionPercentage << ",\n";
+            ss << "            \"status\": \"" << cm.status << "\"\n";
+            ss << "          }" << (k + 1 < f.riskBreakdown.contributingMetrics.size() ? ",\n" : "\n");
+        }
+        ss << "        ]\n";
+        ss << "      },\n";
+
         // Phase 3 AST Complexity Breakdown for file
         ss << "      \"complexitySummary\": {\n";
         ss << "        \"totalFunctions\": " << f.complexity.totalFunctions << ",\n";
@@ -837,6 +921,55 @@ std::string DirectoryScanner::serializeToJson(const ScanResult& result) {
         ss << "    }" << (i + 1 < result.files.size() ? ",\n" : "\n");
     }
     ss << "  ],\n";
+
+    // Phase 4 Duplicate Groups
+    ss << "  \"duplicateGroups\": [\n";
+    for (size_t i = 0; i < result.duplicateGroups.size(); ++i) {
+        const auto& grp = result.duplicateGroups[i];
+        ss << "    {\n";
+        ss << "      \"id\": \"" << escapeJsonString(grp.id) << "\",\n";
+        ss << "      \"lineCount\": " << grp.lineCount << ",\n";
+        ss << "      \"sampleSnippet\": \"" << escapeJsonString(grp.sampleSnippet) << "\",\n";
+        ss << "      \"fragments\": [\n";
+        for (size_t j = 0; j < grp.fragments.size(); ++j) {
+            const auto& frag = grp.fragments[j];
+            ss << "        {\n";
+            ss << "          \"filePath\": \"" << escapeJsonString(frag.filePath) << "\",\n";
+            ss << "          \"startLine\": " << frag.startLine << ",\n";
+            ss << "          \"endLine\": " << frag.endLine << ",\n";
+            ss << "          \"lineCount\": " << frag.lineCount << "\n";
+            ss << "        }" << (j + 1 < grp.fragments.size() ? ",\n" : "\n");
+        }
+        ss << "      ]\n";
+        ss << "    }" << (i + 1 < result.duplicateGroups.size() ? ",\n" : "\n");
+    }
+    ss << "  ],\n";
+
+    // Phase 7 Technical Debt Repository Summary
+    ss << "  \"technicalDebt\": {\n";
+    ss << "    \"repositoryRiskScore\": " << result.technicalDebt.repositoryRiskScore << ",\n";
+    ss << "    \"unweightedAverageRisk\": " << result.technicalDebt.unweightedAverageRisk << ",\n";
+    ss << "    \"overallSeverity\": \"" << result.technicalDebt.overallSeverity << "\",\n";
+    ss << "    \"riskDistribution\": {\n";
+    size_t distIdx = 0;
+    for (const auto& kv : result.technicalDebt.riskDistribution) {
+        ss << "      \"" << kv.first << "\": " << kv.second;
+        if (++distIdx < result.technicalDebt.riskDistribution.size()) ss << ",\n";
+        else ss << "\n";
+    }
+    ss << "    },\n";
+    ss << "    \"recommendations\": [\n";
+    for (size_t i = 0; i < result.technicalDebt.recommendations.size(); ++i) {
+        const auto& rec = result.technicalDebt.recommendations[i];
+        ss << "      {\n";
+        ss << "        \"id\": \"" << escapeJsonString(rec.id) << "\",\n";
+        ss << "        \"severity\": \"" << escapeJsonString(rec.severity) << "\",\n";
+        ss << "        \"title\": \"" << escapeJsonString(rec.title) << "\",\n";
+        ss << "        \"description\": \"" << escapeJsonString(rec.description) << "\"\n";
+        ss << "      }" << (i + 1 < result.technicalDebt.recommendations.size() ? ",\n" : "\n");
+    }
+    ss << "    ]\n";
+    ss << "  },\n";
 
     // Skipped Files
     ss << "  \"skippedFiles\": [\n";

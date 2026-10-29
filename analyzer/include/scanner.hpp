@@ -8,6 +8,7 @@
 #include <cstdint>
 #include "ast_parser.hpp"
 #include "duplicate_detector.hpp"
+#include "risk_scorer.hpp"
 
 namespace codeinsight {
 
@@ -46,6 +47,12 @@ struct FileMetrics {
     // Phase 4 Duplication metrics
     size_t duplicateLines = 0;
     double duplicatePercentage = 0.0;
+
+    // Phase 7 Technical Debt Risk metrics
+    double riskScore = 0.0;
+    std::string severity = "LOW";
+    RemediationPriority remediationPriority;
+    FileRiskBreakdown riskBreakdown;
 };
 
 // Information about a file that was skipped
@@ -90,6 +97,7 @@ struct ScanResult {
     ScanSummary summary;
     std::vector<FileMetrics> files;
     std::vector<DuplicateGroup> duplicateGroups;
+    TechnicalDebtSummary technicalDebt;
     std::vector<SkippedFileInfo> skippedFiles;
     std::vector<std::string> errors;
 };
@@ -101,6 +109,7 @@ struct ScanConfig {
     bool respectGitignore = true;
     size_t minDuplicateLines = 5;                 // Minimum consecutive lines to detect code clones
     size_t minDuplicateTokenChars = 30;           // Avoid trivial line repetition
+    RiskWeights riskWeights;
     std::vector<std::string> additionalExcludedDirs;
 };
 
@@ -134,6 +143,7 @@ private:
     ScanConfig config_;
     AstParser astParser_;
     DuplicateDetector duplicateDetector_;
+    RiskScorer riskScorer_;
     std::vector<std::string> gitignorePatterns_;
     std::set<std::string> visitedCanonicalPaths_; // Prevents symlink loops
 
