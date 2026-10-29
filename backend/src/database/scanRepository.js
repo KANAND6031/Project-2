@@ -123,12 +123,16 @@ class ScanRepository {
         if (existingRepo.rows.length === 0) {
           const repoName = scanRecord.repoPath ? path.basename(scanRecord.repoPath) : 'Repository';
           const repoPath = scanRecord.repoPath || `/workspace/${repoId}`;
-          await client.query(
+          const insertRepoRes = await client.query(
             `INSERT INTO repositories (id, name, path, updated_at)
              VALUES ($1, $2, $3, NOW())
-             ON CONFLICT (path) DO UPDATE SET updated_at = NOW();`,
+             ON CONFLICT (path) DO UPDATE SET updated_at = NOW()
+             RETURNING id;`,
             [repoId, repoName, repoPath]
           );
+          if (insertRepoRes.rows.length > 0) {
+            repoId = insertRepoRes.rows[0].id;
+          }
         }
       } else if (scanRecord.repoPath) {
         const repoRes = await client.query(

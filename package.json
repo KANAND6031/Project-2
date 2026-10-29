@@ -1,4 +1,17 @@
 {
+  "name": "codeinsight",
+  "version": "1.0.0",
+  "description": "CodeInsight: Automated Codebase Health & Technical Debt Prioritization Platform",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend",
+    "migrate": "npm run migrate --prefix backend",
+    "test": "npm test --prefix backend",
+    "test:api": "npm run test:api --prefix backend",
+    "test:db": "npm run test:db --prefix backend"
+  },
   "devDependencies": {
     "tree-sitter": "^0.22.4",
     "tree-sitter-c": "^0.24.1",

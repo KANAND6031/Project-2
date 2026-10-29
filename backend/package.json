@@ -9,6 +9,7 @@
     "test": "node tests/test_ast.js && node tests/test_duplicates.js && node tests/test_risk_scorer.js",
     "test:api": "node tests/test_api.js",
     "test:db": "node tests/test_db.js",
+    "test:frontend": "node tests/test_frontend_serve.js",
     "migrate": "node src/database/migrate.js"
   },
   "dependencies": {
