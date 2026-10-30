@@ -99,7 +99,6 @@ export default function Overview({ summary, technicalDebt, onSelectFile, onSwitc
               <ShieldAlert size={16} style={{ color: 'var(--accent-blue)' }} />
               Technical Debt Formula
             </span>
-            <span className="badge font-mono" style={{ background: 'var(--bg-subtle)' }}>Phase 7 Standard</span>
           </div>
           <div
             style={{
