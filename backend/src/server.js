@@ -25,6 +25,7 @@ app.get('/api/health', (req, res) => {
     status: 'healthy',
     service: 'CodeInsight Backend API',
     version: '1.0.0',
+    storage: 'in-memory',
     timestamp: new Date().toISOString()
   });
 });

@@ -8,14 +8,11 @@
     "dev": "node --watch src/server.js",
     "test": "node tests/test_ast.js && node tests/test_duplicates.js && node tests/test_risk_scorer.js",
     "test:api": "node tests/test_api.js",
-    "test:db": "node tests/test_db.js",
-    "test:frontend": "node tests/test_frontend_serve.js",
-    "migrate": "node src/database/migrate.js"
+    "test:frontend": "node tests/test_frontend_serve.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "express": "^4.21.1",
-    "pg": "^8.23.1"
+    "express": "^4.21.1"
   }
 }

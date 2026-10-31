@@ -2,7 +2,7 @@
 
 CodeInsight is a developer-focused static analysis platform that analyzes source repositories to identify technical debt hotspots, high-complexity functions, deep nesting, duplicate code blocks, and cyclic dependencies.
 
-It pairs a high-performance **C++ analysis engine** with a **Node.js/Express REST backend**, a **PostgreSQL** persistence layer, and a clean **React/Vite** dashboard.
+It pairs a high-performance **C++ analysis engine** with a **Node.js/Express REST backend**, a fast **In-Memory storage layer**, and a clean **React/Vite** dashboard.
 
 ---
 
@@ -14,21 +14,18 @@ It pairs a high-performance **C++ analysis engine** with a **Node.js/Express RES
 └───────────┬─────────────┘
             │ HTTP / REST
 ┌───────────▼─────────────┐
-│  Node.js Express Server │  (API Gateway, Process Orchestrator, Job Queue)
-└─────┬──────────────┬────┘
-      │              │
-      │ Subprocess   │ SQL Queries
-      │ (JSON IPC)   │
-┌─────▼──────────┐ ┌─▼──────────────────┐
-│  C++ Analyzer  │ │ PostgreSQL Storage │
-│ (Tree-sitter)  │ │ (Scans, Metrics)   │
-└────────────────┘ └────────────────────┘
+│  Node.js Express Server │  (API Gateway, In-Memory Storage, Job Queue)
+└───────────┬─────────────┘
+            │ Subprocess
+            │ (JSON IPC)
+┌───────────▼─────────────┐
+│      C++ Analyzer       │  (Tree-sitter AST, Token Hashing, Duplicate Clones)
+└─────────────────────────┘
 ```
 
 1. **Frontend**: React + Vite single-page application.
-2. **Backend**: Node.js/Express API that receives scan requests and manages worker execution.
+2. **Backend**: Node.js/Express API with zero-dependency in-memory persistence for repositories, scans, and metrics.
 3. **Engine**: Standalone C++ executable that performs file discovery, AST parsing, duplicate detection, and metric calculation, outputting structured JSON.
-4. **Database**: PostgreSQL storing repositories, scan snapshots, file-level metrics, and duplicate groups.
 
 ---
 
@@ -49,30 +46,24 @@ CodeInsight/
 │   ├── package.json
 │   └── src/
 │       ├── controllers/      # Request handlers
-│       ├── database/         # PostgreSQL connection & queries
 │       ├── jobs/             # Scan background tasks
-│       ├── middleware/       # Auth, validation, rate limiting
 │       ├── routes/           # Express route definitions
 │       │   └── scanRoutes.js
-│       ├── services/         # Orchestration & analyzer invocation
+│       ├── services/         # In-memory storage, queue & analyzer invocation
+│       │   ├── storageService.js
 │       │   └── analyzerService.js
 │       ├── utils/            # Helper utilities
 │       └── server.js         # API entry point
 ├── frontend/                 # React + Vite Dashboard
 │   ├── src/
 │   │   ├── components/       # Reusable UI components
-│   │   ├── pages/            # View pages (Overview, Explorer, Graph)
 │   │   ├── services/         # API client
 │   │   └── utils/
 │   ├── package.json
 │   └── vite.config.js
-├── database/                 # Database Schemas & Migrations
-│   ├── schema.sql
-│   └── migrations/
 ├── test-fixtures/            # Controlled code samples for validation
-│   └── sample-repo/
+│   └── complex-repo/
 ├── docs/                     # Architecture & metric documentation
-├── .env.example              # Environment variables template
 ├── .gitignore
 └── README.md
 ```
@@ -82,26 +73,20 @@ CodeInsight/
 ## 3. Quick Start Guide
 
 ### Prerequisites
-- **Node.js**: v18+ (verified on Node.js v24)
-- **PostgreSQL**: v14+ (PostgreSQL 18 running on port 5432)
-- Environment file `.env` in the root directory (configured with `DB_PASSWORD=krishna`, `DB_NAME=codeinsight`).
+- **Node.js**: v18+ (tested on Node.js v24)
+- **Zero Database Setup**: The application runs completely standalone with in-memory persistence. No PostgreSQL or database installation is required.
 
 ---
 
 ### Option A: Single-Server Mode (Recommended & Fastest)
-The backend server serves both the interactive React dashboard and all REST API endpoints from a single port.
+The backend server serves both the interactive React dashboard and all REST API endpoints from a single port:
 
-1. **Verify or run database migrations** (one-time setup):
-   ```bash
-   npm run migrate
-   ```
-
-2. **Start the CodeInsight platform**:
+1. **Start the CodeInsight platform**:
    ```bash
    npm start
    ```
 
-3. **Open your browser**:
+2. **Open your browser**:
    Navigate to [**http://localhost:5000**](http://localhost:5000).
 
 ---
@@ -124,16 +109,11 @@ If you want to edit frontend or backend code with instant live reload:
 
 ---
 
-## 4. Running Tests
-
-Execute any of the automated test suites:
+## 4. Automated Verification & Testing
 
 ```bash
 # Run Unit Tests (AST parsing, clone detection, risk scorer)
 npm test
-
-# Run PostgreSQL Database Integration Tests (Schema, migrations, ACID transactions)
-npm run test:db
 
 # Run REST API Integration Tests (Endpoints, comparisons, reports, cascade delete)
 npm run test:api
