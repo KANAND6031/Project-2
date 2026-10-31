@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  31 OCT 2026 18:19
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  1 NOV 2026 02:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1312,7 +1312,12 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
-[11] [12] [13]) (chapters/2_Literature_Survey.tex [14
+[11] [12] [13]
+Overfull \hbox (4.14742pt too wide) in paragraph at lines 57--68
+ [][] 
+ []
+
+) (chapters/2_Literature_Survey.tex [14
 
 ]
 Chapter 2.
@@ -1421,113 +1426,89 @@ LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 9.29993pt on input line 273.
  [28]
 Overfull \hbox (0.57045pt too wide) in paragraph at lines 331--332
-[]\T1/fnc/b/n/12 Sub-process 4.4 (Cal-cu-late Over-all Risk): \T1/fnc/m/n/12 Sy
+[]\T1/fnc/b/n/12 Sub-process 2.4 (Cal-cu-late Over-all Risk): \T1/fnc/m/n/12 Sy
 n-the-sizes the nor-mal-ized scores
  []
 
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 7.06795pt on input line 400.
+(Font)              scaled to size 7.06795pt on input line 402.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 400.
+(Font)              scaled to size 9.19998pt on input line 402.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 6.99199pt on input line 400.
+(Font)              scaled to size 6.99199pt on input line 402.
 LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
-(Font)              scaled to size 5.51999pt on input line 400.
+(Font)              scaled to size 5.51999pt on input line 402.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 9.19998pt on input line 400.
+(Font)              scaled to size 9.19998pt on input line 402.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 6.99199pt on input line 400.
+(Font)              scaled to size 6.99199pt on input line 402.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
-(Font)              scaled to size 5.51999pt on input line 400.
+(Font)              scaled to size 5.51999pt on input line 402.
 ) (chapters/5_Implementation.tex [29] [30]
 Chapter 5.
 
-Overfull \hbox (18.32433pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |-- controllers/      # repositoryController.js, scan
-Controller.js[] 
+Overfull \hbox (2.13448pt too wide) in paragraph at lines 8--9
+\T1/fnc/m/n/12 plex-ity, du-pli-ca-tion, and struc-tural scores. These scores a
+re com-bined us-ing a weighted
  []
 
 [31
 
 ]
-Overfull \hbox (18.32433pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |   |-- analyzerService.js   # Native process executi
-on & fallback[] 
- []
-
-
-Overfull \hbox (5.97734pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |   |-- astEngine.js         # JavaScript Tree-sitter
- AST engine[] 
- []
-
-
-Overfull \hbox (30.67131pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |   |-- riskScorer.js        # Node.js technical debt
- scoring engine[] 
- []
-
-
-Overfull \hbox (12.15083pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |   `-- exportService.js     # JSON, Markdown, CSV re
-port formats[] 
- []
-
-
-Overfull \hbox (36.8448pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   `-- server.js         # API entry point & single-serv
-er static server[] 
- []
-
-
-Overfull \hbox (24.49782pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |-- components/       # Overview.jsx, FileList.jsx, F
-ileDetail.jsx,[] 
- []
-
-
-Overfull \hbox (61.53877pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |   |   |                     # DuplicateViewer.jsx, Navbar.j
-sx, NewScanModal.jsx[] 
- []
-
-
-Overfull \hbox (43.0183pt too wide) in paragraph at lines 50--50
-[]\T1/cmtt/m/n/12 |-- test-fixtures/            # Controlled codebases for auto
-mated test suites[] 
- []
-
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 59.
+put line 20.
+LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
+(Font)              scaled to size 7.71893pt on input line 24.
+LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
+(Font)              scaled to size 10.07397pt on input line 24.
+LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
+(Font)              scaled to size 7.63599pt on input line 24.
+LaTeX Font Info:    Font shape `U/futm/m/n' will be
+(Font)              scaled to size 10.07397pt on input line 24.
+LaTeX Font Info:    Font shape `U/futm/m/n' will be
+(Font)              scaled to size 7.63599pt on input line 24.
 LaTeX Font Info:    Font shape `T1/fnc/m/sc' will be
-(Font)              scaled to size 11.15991pt on input line 64.
+(Font)              scaled to size 10.18341pt on input line 26.
 
-Overfull \hbox (25.32782pt too wide) in paragraph at lines 75--76
-[] \T1/fnc/b/n/12 if $\FML/fncmi/m/it/12 u:[] \FMS/fncm/m/n/12 2 f[]\FML/fncmi/
-m/it/12 ; []; []; []; [] \FMS/fncm/m/n/12 g$
+Underfull \hbox (badness 3199) in paragraph at lines 37--38
+[] \T1/fnc/b/n/10.95 if $\FML/fncmi/m/it/10.95 u:[] \FMS/fncm/m/n/10.95 2 f[]\F
+ML/fncmi/m/it/10.95 ; []; []; []; [] \FMS/fncm/m/n/10.95 g$
+ []
+
+[32
+
+] [33
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 99--100
+[]\T1/fnc/m/n/10.95 File met-rics ($\FML/fncmi/m/it/10.95 M[]; P[]; []; N[]; P[
+]$\T1/fnc/m/n/10.95 ), Weight vec-tors $(\FML/fncmi/m/it/10.95 w[]; w[]; w[]\T1
+/fnc/m/n/10.95 ) \FMS/fncm/m/n/10.95 Å
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 137--138
-[]$\FML/fncmi/m/it/12 L \FMS/fncm/m/n/12   []\T1/fnc/m/n/12 ([])\FML/fncmi/m/it
-/12 ;  N \FMS/fncm/m/n/12   []\T1/fnc/m/n/12 (\FML/fncmi/m/it/12 N[]\T1/fnc/m/n
-/12 )\FML/fncmi/m/it/12 ;  P \FMS/fncm/m/n/12  
+Underfull \hbox (badness 10000) in paragraph at lines 103--104
+[]$\FML/fncmi/m/it/10.95 L \FMS/fncm/m/n/10.95   []\T1/fnc/m/n/10.95 ([])\FML/f
+ncmi/m/it/10.95 ;  N \FMS/fncm/m/n/10.95   []\T1/fnc/m/n/10.95 (\FML/fncmi/m/it
+/10.95 N[]\T1/fnc/m/n/10.95 )\FML/fncmi/m/it/10.95 ;  P \FMS/fncm/m/n/10.95  
  []
 
-[32] [33] [34] [35]
-Overfull \hbox (37.91487pt too wide) in paragraph at lines 179--210
+[34
+
+]
+Overfull \hbox (37.91487pt too wide) in paragraph at lines 145--176
  [][] 
  []
 
-[36]
-Overfull \hbox (5.43396pt too wide) in paragraph at lines 231--232
+[35] [36]
+Overfull \hbox (5.43396pt too wide) in paragraph at lines 197--198
 \T1/fnc/m/n/12 database servers such as Post-greSQL, CodeIn-sight uses a high-p
 erformance in-memory
  []
 
 [37]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <12> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 241.
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 207.
 ) (chapters/6_Results.tex [38]
 Chapter 6.
 
@@ -1538,14 +1519,7 @@ that dis-crete mod-ules^^Vincluding
 
 [39
 
-]
-Overfull \hbox (49.30783pt too wide) in paragraph at lines 25--26
-[]\T1/fnc/m/n/12 Assessed that REST API end-points (\T1/cmtt/m/n/12 GET /api/sc
-ans/:id\T1/fnc/m/n/12 , \T1/cmtt/m/n/12 GET /api/scans/:id/export\T1/fnc/m/n/12
- )
- []
-
-[40]
+] [40]
 Overfull \hbox (0.10149pt too wide) in paragraph at lines 40--41
 []\T1/fnc/b/n/12 Test Case 1 (AST Met-ric Ex-trac-tion): \T1/fnc/m/n/12 Eval-u-
 ated on \T1/cmtt/m/n/12 complex_functions.cpp
@@ -1557,159 +1531,96 @@ Overfull \hbox (2.31325pt too wide) in paragraph at lines 43--44
 Tree-sitter en-gine seam-
  []
 
-LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
-(Font)              scaled to size 9.29993pt on input line 83.
 
-Overfull \hbox (15.64952pt too wide) in paragraph at lines 92--93
- [][] 
+Overfull \hbox (6.0063pt too wide) in paragraph at lines 49--50
+[]\T1/fnc/m/n/12 The em-pir-i-cal bench-marks con-firm that CodeIn-sight scales
+ near-linearly with repos-
+ []
+
+
+Underfull \hbox (badness 10000) in alignment at lines 71--71
+[][][][][] 
  []
 
 [41]
-Overfull \hbox (88.30186pt too wide) in paragraph at lines 106--118
- [][] 
+Overfull \hbox (15.41321pt too wide) in paragraph at lines 94--94
+[]|\T1/cmtt/m/n/10.95 processTransactions() 
  []
 
 
-Overfull \hbox (173.74466pt too wide) in paragraph at lines 128--139
- [][] 
+Overfull \hbox (9.75484pt too wide) in paragraph at lines 94--94
+[]|\T1/cmtt/m/n/10.95 validateAuthHeader() 
  []
 
 [42]
-Overfull \hbox (70.06128pt too wide) in paragraph at lines 151--160
- [][] 
+Underfull \hbox (badness 10000) in alignment at lines 117--117
+[][][][][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Clang-
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Evaluation Fea-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 CodeInsight
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 CodeInsight
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Target Lan-
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/m/n/10 JavaScript /
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Multi-
+Underfull \hbox (badness 1365) in paragraph at lines 151--151
+[]|\T1/fnc/m/n/10 Multi (C, C++, JS,
  []
 
 
-Underfull \hbox (badness 7704) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Multi (C, C++,
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Database De-pen-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Database De-
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/m/n/10 Heavy (Post-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Heavy (Post-
+Underfull \hbox (badness 1509) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 None (In-Memory
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-\T1/fnc/m/n/12 greSQL,
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Startup Setup
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 None (In-
+Underfull \hbox (badness 3168) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Instant ($\FMS/fncm/m/n/10 Ç \T1/fnc/m/n/10 5$ \T1/fnc/b/n/10
+ sec-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Startup Setup
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Scoring Ex-plain-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Memory Foot-
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Formula ($\FML/fncmi/m/it/10 R \FMS/fncm/m/n/10 Å
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Scoring Ex-
+Underfull \hbox (badness 10000) in paragraph at lines 151--151
+[]|\T1/fnc/b/n/10 Interactive Dash-
  []
 
+[43] [44]) (chapters/7_Conclusion.tex [45
 
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 No debt
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 No debt
- []
-
-
-Underfull \hbox (badness 4967) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Formula ($\FML/fncmi/m/it/12 R \FMS/fncm/m/n/12 Å
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Clone De-tec-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Not sup-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Not sup-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Integrated
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Interactive
- []
-
-
-Underfull \hbox (badness 1057) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Heavy Server
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Terminal
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Terminal
- []
-
-
-Underfull \hbox (badness 4927) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Rule sever-
- []
-
-
-Underfull \hbox (badness 4927) in paragraph at lines 192--192
-[]|\T1/fnc/m/n/12 Rule sever-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 192--192
-[]|\T1/fnc/b/n/12 Remediation
- []
-
-[43] [44]) (chapters/7_Conclusion.tex [45]
+]
 Chapter 7.
 
 Overfull \hbox (17.19832pt too wide) in paragraph at lines 15--16
@@ -1751,37 +1662,39 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 130A978793492EB6A8C283A2961BB36F;13877.
+(rerunfilecheck)             Checksum: 46485742B3890D3D413352A6B2175D7F;13730.
  ) 
 Here is how much of TeX's memory you used:
- 28570 strings out of 467871
- 529463 string characters out of 5418377
- 986520 words of memory out of 5000000
- 56712 multiletter control sequences out of 15000+600000
- 713427 words of font info for 154 fonts, out of 8000000 for 9000
+ 28574 strings out of 467871
+ 529554 string characters out of 5418377
+ 977433 words of memory out of 5000000
+ 56708 multiletter control sequences out of 15000+600000
+ 723147 words of font info for 178 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 84i,13n,94p,1003b,902s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,13n,94p,1003b,906s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss
 1095.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
-0\ecsx1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
-/dpi450\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
-pen/ec/dpi600\ecsx0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour
-/jknappen/ec/dpi600\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/
-ljfour/jknappen/ec/dpi600\ecss1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fon
-ts/pk/ljfour/jknappen/ec/dpi600\ecsx1095.pk> <C:\Users\krish\AppData\Local\MiKT
-eX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk><C:/Users/krish/AppData/Local
-/Programs/MiKTeX/fonts/type1/public/fourier/fourier-mcl.pfb><C:/Users/krish/App
-Data/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-ml.pfb><C:/Users/
-krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-mlit.pfb
-><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fouri
-er-ms.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ncntrsb
-k/uncb8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ncnt
-rsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/n
-cntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/ur
-w/ncntrsbk/uncri8a.pfb>
-Output written on main.pdf (52 pages, 405249 bytes).
+0\ectt1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi600\ectt1095.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\ecsx1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi450\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/
+ljfour/jknappen/ec/dpi600\ecsx0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fon
+ts/pk/ljfour/jknappen/ec/dpi600\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKT
+eX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss1000.pk> <C:\Users\krish\AppData\Loca
+l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsx1095.pk> <C:\Users\krish\AppDat
+a\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk><C:/Users/krish/A
+ppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-mcl.pfb><C:/Use
+rs/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-ml.pf
+b><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/four
+ier-mlit.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/f
+ourier/fourier-ms.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1
+/urw/ncntrsbk/uncb8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/ty
+pe1/urw/ncntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts
+/type1/urw/ncntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fo
+nts/type1/urw/ncntrsbk/uncri8a.pfb>
+Output written on main.pdf (52 pages, 399623 bytes).
 PDF statistics:
  1159 PDF objects out of 1200 (max. 8388607)
- 210 named destinations out of 1000 (max. 500000)
- 17994 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 209 named destinations out of 1000 (max. 500000)
+ 19530 words of extra memory for PDF output out of 20736 (max. 10000000)
 

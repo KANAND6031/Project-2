@@ -1,63 +1,25 @@
 \chapter{Implementation}
 
-\section{Module Coherence and Codebase Structure}
-The implementation of CodeInsight follows a clean, decoupled design based on modularity, single-responsibility principles, and high module coherence. The codebase is organized into three primary operational subsystems: the native C++ analysis engine, the Node.js Express orchestration service, and the React/Vite developer dashboard. 
+\section{Introduction}
+Implementation is the phase in which the proposed system architecture and design are converted into a working software application. This chapter describes the implementation of CodeInsight, an automated codebase health and technical debt prioritization platform.
 
-By defining strict contracts between these layers—namely standard JSON IPC between the backend and native engine, and structured REST endpoints between the frontend and backend—each module can be developed and verified independently. The physical organization of the repository is depicted below:
+The system is developed using a modular architecture consisting of a React-based frontend, a Node.js and Express backend, and a C++ analysis engine. The frontend provides the user interface for repository selection and result visualization, while the backend coordinates repository scanning and communication with the analysis engine. The C++ engine performs source code analysis and extracts relevant metrics.
 
-\begin{verbatim}
-CodeInsight/
-|-- analyzer/                 # C++ Standalone Analysis Engine
-|   |-- CMakeLists.txt        # CMake build configuration
-|   |-- include/              # Public headers
-|   |   |-- scanner.hpp       # Directory traversal & line counting
-|   |   |-- ast_parser.hpp    # Tree-sitter AST & complexity analysis
-|   |   |-- duplicate_detector.hpp # Token sliding-window clone hashing
-|   |   `-- risk_scorer.hpp   # Unified technical debt formula
-|   |-- src/                  # C++ implementation files
-|   |   |-- main.cpp          # CLI entry point & JSON serializer
-|   |   |-- scanner.cpp       # Lexical state machine & file filtering
-|   |   |-- ast_parser.cpp    # AST visitor & McCabe complexity
-|   |   |-- duplicate_detector.cpp # Maximal clone block expansion
-|   |   `-- risk_scorer.cpp   # Structural & composite debt scoring
-|   `-- third_party/          # Tree-sitter runtime & grammar sources
-|-- backend/                  # Node.js / Express REST Backend
-|   |-- src/
-|   |   |-- controllers/      # repositoryController.js, scanController.js
-|   |   |-- routes/           # scanRoutes.js, repositoryRoutes.js
-|   |   |-- services/         # Orchestration & analysis services
-|   |   |   |-- storageService.js    # Zero-setup in-memory persistence
-|   |   |   |-- scanQueueService.js  # Asynchronous scan task queue
-|   |   |   |-- analyzerService.js   # Native process execution & fallback
-|   |   |   |-- astEngine.js         # JavaScript Tree-sitter AST engine
-|   |   |   |-- duplicateService.js  # Token clone detection service
-|   |   |   |-- riskScorer.js        # Node.js technical debt scoring engine
-|   |   |   `-- exportService.js     # JSON, Markdown, CSV report formats
-|   |   `-- server.js         # API entry point & single-server static server
-|   `-- package.json
-|-- frontend/                 # React 18 + Vite Interactive Dashboard
-|   |-- src/
-|   |   |-- components/       # Overview.jsx, FileList.jsx, FileDetail.jsx,
-|   |   |                     # DuplicateViewer.jsx, Navbar.jsx, NewScanModal.jsx
-|   |   |-- services/         # api.js (Axios REST client)
-|   |   |-- index.css         # Dark theme design tokens & typography
-|   |   `-- App.jsx           # Root application state & scan polling
-|   `-- vite.config.js
-|-- test-fixtures/            # Controlled codebases for automated test suites
-|   |-- complex-repo/         # Multi-language test repository
-|   `-- duplication-repo/     # Controlled Type-1 clone samples
-`-- README.md
-\end{verbatim}
+The extracted metrics are processed by the risk-scoring module to calculate complexity, duplication, and structural scores. These scores are combined using a weighted scoring model to estimate the relative maintenance risk of individual source files. The resulting information is returned to the frontend in JSON format and presented through tables, charts, and file-level details.
 
+The current implementation focuses on repository scanning, static code analysis, duplication detection, structural analysis, risk calculation, and result visualization. Database integration, dependency coupling analysis, and Git modification history analysis are considered future enhancements.
+
+\clearpage
 \section{System Algorithms}
 The core operational logic of CodeInsight is driven by three primary algorithms governing source code parsing, duplicate clone identification, and technical debt risk calculation.
 
 \subsection{AST Parsing and Complexity Extraction}
 Algorithm \ref{alg:ast_parse} outlines how source code files are parsed into abstract syntax trees to extract cyclomatic complexity and nesting depths.
 
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
 \caption{AST Parsing and Cyclomatic Complexity Extraction}
 \label{alg:ast_parse}
+\small
 \begin{algorithmic}[1]
 \Require Source file path $F$, Language Grammar $G_L$
 \Ensure Function metric list $\mathcal{M} = \{(f_i, M_i, N_i, P_i, L_i)\}$
@@ -91,18 +53,20 @@ Algorithm \ref{alg:ast_parse} outlines how source code files are parsed into abs
 \end{algorithmic}
 \end{algorithm}
 
+\clearpage
 \subsection{Sliding-Window Token Hashing and Clone Detection}
 Algorithm \ref{alg:clone_detect} details the sliding-window token hashing and maximal forward expansion technique utilized to identify Type-1 duplicate code fragments across files.
 
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
 \caption{Sliding-Window Token Hashing and Maximal Clone Expansion}
 \label{alg:clone_detect}
+\small
 \begin{algorithmic}[1]
-\Require Analyzed file set $\mathcal{F} = \{F_1, \dots, F_m\}$, Window Size $K = 5$, Min Token Length $\tau = 30$
-\Ensure Clustered Duplicate Groups $\mathcal{G} = \{G_1, G_2, \dots\}$
+\Require Analyzed file set $F = \{F_1, \dots, F_m\}$, Window Size $K = 5$, Min Token Length $\tau = 30$
+\Ensure Clustered Duplicate Groups $G = \{G_1, G_2, \dots\}$
 \State Initialize hash table $H: \text{HashValue} \to \text{List of } (\text{FileID}, \text{LineStart})$
-\For{each file $F \in \mathcal{F}$}
-    \State Strip comments and empty lines from $F$, recording original line numbers $\mathcal{L}$
+\For{each file $F \in F$}
+    \State Strip comments and empty lines from $F$, recording original line numbers $L$
     \State Normalize whitespace: collapse consecutive spaces and tabs to a single space
     \For{index $i = 1$ to $|F.\text{lines}| - K + 1$}
         \State Block $B \leftarrow \Call{JoinLines}{F.\text{lines}[i \dots i + K - 1]}$
@@ -112,23 +76,25 @@ Algorithm \ref{alg:clone_detect} details the sliding-window token hashing and ma
         \EndIf
     \EndFor
 \EndFor
-\State Candidate pairs $\mathcal{P} \leftarrow \emptyset$
+\State Candidate pairs $P \leftarrow \emptyset$
 \For{each hash entry $h \in H$ where $|H[h]| \ge 2$}
     \State Expand matching lines forward across paired fragments until next mismatch
     \State Merge overlapping blocks and filter out sub-slices covered by larger blocks
-    \State Add maximal non-subsumed clone fragments to $\mathcal{P}$
+    \State Add maximal non-subsumed clone fragments to $P$
 \EndFor
-\State Cluster connected pairs in $\mathcal{P}$ into disjoint duplicate groups $\mathcal{G}$
-\State \Return $\mathcal{G}$
+\State Cluster connected pairs in $P$ into disjoint duplicate groups $G$
+\State \Return $G$
 \end{algorithmic}
 \end{algorithm}
 
+\clearpage
 \subsection{Explainable Technical Debt Scoring}
 Algorithm \ref{alg:risk_score} demonstrates the calculation of file-level composite technical debt risk scores and priority tiers.
 
-\begin{algorithm}[htbp]
+\begin{algorithm}[H]
 \caption{Explainable Technical Debt Scoring and Priority Triage}
 \label{alg:risk_score}
+\small
 \begin{algorithmic}[1]
 \Require File metrics ($M_{\max}, P_{\text{dup}}, \text{LOC}, N_{\max}, P_{\max}$), Weight vectors $(w_c, w_d, w_s) = (0.45, 0.35, 0.20)$
 \Ensure Risk Score $R \in [0, 100]$, Severity Tier, Priority Rating ($P1$--$P4$)

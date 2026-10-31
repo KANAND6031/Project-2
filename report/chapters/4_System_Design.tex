@@ -10,8 +10,8 @@ The system architecture of CodeInsight is designed as an end-to-end, sequential 
     procbox/.style={
         rectangle, 
         rounded corners=4pt, 
-        draw=blue!75!black, 
-        fill=blue!5, 
+        draw=black, 
+        fill=white, 
         thick, 
         text width=7.2cm, 
         minimum height=0.88cm, 
@@ -21,8 +21,8 @@ The system architecture of CodeInsight is designed as an end-to-end, sequential 
     accentbox/.style={
         rectangle, 
         rounded corners=4pt, 
-        draw=teal!75!black, 
-        fill=teal!8, 
+        draw=black, 
+        fill=white, 
         thick, 
         text width=7.2cm, 
         minimum height=0.88cm, 
@@ -32,8 +32,8 @@ The system architecture of CodeInsight is designed as an end-to-end, sequential 
     enginebox/.style={
         rectangle, 
         rounded corners=4pt, 
-        draw=indigo!75!black, 
-        fill=indigo!8, 
+        draw=black, 
+        fill=white, 
         thick, 
         text width=7.2cm, 
         minimum height=0.88cm, 
@@ -43,7 +43,7 @@ The system architecture of CodeInsight is designed as an end-to-end, sequential 
     arrow/.style={
         -{Stealth[length=2.5mm,width=1.8mm]}, 
         thick, 
-        color=blue!80!black
+        draw=black
     }
 ]
 
@@ -196,13 +196,13 @@ The Level 1 Data Flow Diagram decomposes the system into its primary operational
 ]
 
 \node[entity] (user) at (0, 0) {Developer};
-\node[proc] (p1) at (3.4, 0) {\textbf{1.0}\\[1pt]File Filter\\[1pt]\mbox{\& Discovery}};
-\node[proc] (p2) at (7.3, 0) {\textbf{2.0}\\[1pt]AST Parse\\[1pt]\mbox{\& Complexity}};
-\node[proc] (p3) at (11.6, 0) {\textbf{3.0}\\[1pt]Token Hash\\[1pt]\& Clones};
+\node[proc] (p1) at (3.4, 0) {\textbf{1.1}\\[1pt]File Filter\\[1pt]\mbox{\& Discovery}};
+\node[proc] (p2) at (7.3, 0) {\textbf{1.2}\\[1pt]AST Parse\\[1pt]\mbox{\& Complexity}};
+\node[proc] (p3) at (11.6, 0) {\textbf{1.3}\\[1pt]Token Hash\\[1pt]\& Clones};
 
-\node[proc] (p4) at (11.6, -3.2) {\textbf{4.0}\\[1pt]Debt Risk\\[1pt]Scoring};
+\node[proc] (p4) at (11.6, -3.2) {\textbf{1.4}\\[1pt]Debt Risk\\[1pt]Scoring};
 \node[store] (store) at (5.7, -3.2) {In-Memory\\ Data Store};
-\node[proc] (p5) at (0, -3.2) {\textbf{5.0}\\[1pt]Dashboard\\[1pt]Telemetry};
+\node[proc] (p5) at (0, -3.2) {\textbf{1.5}\\[1pt]Dashboard\\[1pt]Telemetry};
 
 % Flow connections
 \draw[arrow] (user) -- node[above, font=\tiny\sffamily] {Repo Path} (p1);
@@ -220,10 +220,10 @@ The Level 1 Data Flow Diagram decomposes the system into its primary operational
 \label{fig:dfd1}
 \end{figure}
 
-In Figure \ref{fig:dfd1}, the repository path passes to Process 1.0 (File Filtering \& Discovery), which ignores minified files, vendor dependencies, and binary assets. Valid source files flow into Process 2.0 (AST Parsing \& Complexity Extraction) to determine function-level decision points and nesting depths. Concurrently, Process 3.0 (Token Hashing \& Clones) executes sliding-window matching to identify duplicate blocks. Both metric streams feed into Process 4.0 (Debt Risk Scoring), which computes the composite risk formula and populates the In-Memory Data Store. Finally, Process 5.0 (Dashboard Telemetry) pulls the stored snapshots and renders real-time visual reports.
+In Figure \ref{fig:dfd1}, the repository path passes to Process 1.1 (File Filtering \& Discovery), which ignores minified files, vendor dependencies, and binary assets. Valid source files flow into Process 1.2 (AST Parsing \& Complexity Extraction) to determine function-level decision points and nesting depths. Concurrently, Process 1.3 (Token Hashing \& Clones) executes sliding-window matching to identify duplicate blocks. Both metric streams feed into Process 1.4 (Debt Risk Scoring), which computes the composite risk formula and populates the In-Memory Data Store. Finally, Process 1.5 (Dashboard Telemetry) pulls the stored snapshots and renders real-time visual reports.
 
 \subsection{DFD Level 2 (Inference / Debt Scoring Process Decomposition)}
-Figure \ref{fig:dfd2} provides a granular decomposition of Process 4.0 (Debt Risk Scoring), illustrating the mathematical steps and data transformations required to evaluate technical debt and assign severity tiers.
+Figure \ref{fig:dfd2} provides a granular decomposition of Process 1.4 (Debt Risk Scoring), illustrating the mathematical steps and data transformations required to evaluate technical debt and assign severity tiers.
 
 \begin{figure}[htbp]
 \centering
@@ -274,25 +274,25 @@ Figure \ref{fig:dfd2} provides a granular decomposition of Process 4.0 (Debt Ris
 \node[inout, text width=3.3cm] (inp_dup) at (0, 0) {\textbf{Duplication Percentage}};
 \node[inout, text width=3.3cm] (inp_loc) at (3.8, 0) {\textbf{LOC and Long-Line}\\[1pt]\textbf{Metrics}};
 
-% Row 2: Sub-processes 4.1, 4.2, 4.3
-\node[proc] (p41) at (-3.8, -2.1) {\textbf{4.1}\\[2pt]Normalize\\[1pt]Complexity};
-\node[proc] (p42) at (0, -2.1) {\textbf{4.2}\\[2pt]Normalize\\[1pt]Duplication};
-\node[proc] (p43) at (3.8, -2.1) {\textbf{4.3}\\[2pt]Calculate\\[1pt]Structural\\[1pt]Score};
+% Row 2: Sub-processes 2.1, 2.2, 2.3
+\node[proc] (p41) at (-3.8, -2.1) {\textbf{2.1}\\[2pt]Normalize\\[1pt]Complexity};
+\node[proc] (p42) at (0, -2.1) {\textbf{2.2}\\[2pt]Normalize\\[1pt]Duplication};
+\node[proc] (p43) at (3.8, -2.1) {\textbf{2.3}\\[2pt]Calculate\\[1pt]Structural\\[1pt]Score};
 
 % Row 3: Intermediate Scores
 \node[score, text width=3.1cm] (sc_c) at (-3.8, -4.1) {C: Complexity Score (0--100)};
 \node[score, text width=3.1cm] (sc_d) at (0, -4.1) {D: Duplication Score (0--100)};
 \node[score, text width=3.1cm] (sc_s) at (3.8, -4.1) {S: Structural Score (0--100)};
 
-% Row 4: Central Process 4.4 and Weights beside it
-\node[proc, minimum size=2.1cm] (p44) at (0, -6.4) {\textbf{4.4}\\[2pt]Calculate\\[1pt]Overall Risk};
+% Row 4: Central Process 2.4 and Weights beside it
+\node[proc, minimum size=2.1cm] (p44) at (0, -6.4) {\textbf{2.4}\\[2pt]Calculate\\[1pt]Overall Risk};
 \node[score, text width=2.6cm] (wts) at (3.8, -6.4) {\textbf{Weights: 45, 35, 20}};
 
 % Row 5: Intermediate Overall Risk Score
 \node[score, text width=3.6cm] (sc_risk) at (0, -8.15) {Overall Risk Score (0--100)};
 
-% Row 6: Sub-process 4.5
-\node[proc] (p45) at (0, -10.0) {\textbf{4.5}\\[2pt]Assign\\[1pt]Severity};
+% Row 6: Sub-process 2.5
+\node[proc] (p45) at (0, -10.0) {\textbf{2.5}\\[2pt]Assign\\[1pt]Severity};
 
 % Row 7: Final Output
 \node[inout, text width=4.8cm] (out_final) at (0, -12.0) {\textbf{Risk Score, Severity and}\\[1pt]\textbf{Metric Explanations}};
@@ -325,11 +325,11 @@ Figure \ref{fig:dfd2} provides a granular decomposition of Process 4.0 (Debt Ris
 
 As illustrated in Figure \ref{fig:dfd2}, the technical debt evaluation pipeline decomposes into five distinct sub-processes:
 \begin{itemize}
-    \item \textbf{Sub-process 4.1 (Normalize Complexity):} Ingests raw function complexity metrics (McCabe cyclomatic complexity $M = 1 + D$) and scales them into a normalized complexity score $C \in [0, 100]$.
-    \item \textbf{Sub-process 4.2 (Normalize Duplication):} Evaluates multi-file code clone percentages identified by the token hashing pipeline, producing a normalized duplication score $D \in [0, 100]$.
-    \item \textbf{Sub-process 4.3 (Calculate Structural Score):} Aggregates physical line metrics, unusually long lines, and control-flow nesting depth to derive a composite structural health score $S \in [0, 100]$.
-    \item \textbf{Sub-process 4.4 (Calculate Overall Risk):} Synthesizes the normalized scores ($C$, $D$, $S$) with calibrated weights (45\%, 35\%, and 20\% respectively) according to the formulation $R = 0.45C + 0.35D + 0.20S$, producing an overall risk score bound within $[0, 100]$.
-    \item \textbf{Sub-process 4.5 (Assign Severity):} Evaluates the overall risk score against discrete heuristic thresholds, categorizing files into Low, Moderate, High, or Critical severity tiers and generating actionable, metric-based remediation explanations.
+    \item \textbf{Sub-process 2.1 (Normalize Complexity):} Ingests raw function complexity metrics (McCabe cyclomatic complexity $M = 1 + D$) and scales them into a normalized complexity score $C \in [0, 100]$.
+    \item \textbf{Sub-process 2.2 (Normalize Duplication):} Evaluates multi-file code clone percentages identified by the token hashing pipeline, producing a normalized duplication score $D \in [0, 100]$.
+    \item \textbf{Sub-process 2.3 (Calculate Structural Score):} Aggregates physical line metrics, unusually long lines, and control-flow nesting depth to derive a composite structural health score $S \in [0, 100]$.
+    \item \textbf{Sub-process 2.4 (Calculate Overall Risk):} Synthesizes the normalized scores ($C$, $D$, $S$) with calibrated weights (45\%, 35\%, and 20\% respectively) according to the formulation $R = 0.45C + 0.35D + 0.20S$, producing an overall risk score bound within $[0, 100]$.
+    \item \textbf{Sub-process 2.5 (Assign Severity):} Evaluates the overall risk score against discrete heuristic thresholds, categorizing files into Low, Moderate, High, or Critical severity tiers and generating actionable, metric-based remediation explanations.
 \end{itemize}
 
 \section{Activity Diagram}
@@ -338,11 +338,13 @@ The Activity Diagram in Figure \ref{fig:activity} illustrates the operational wo
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[
+    >=Stealth,
+    thick,
     node distance=1.1cm,
     startstop/.style={
         ellipse, 
-        draw=red!70!black, 
-        fill=red!15, 
+        draw=black, 
+        fill=white, 
         thick, 
         minimum width=2.4cm, 
         minimum height=0.7cm, 
@@ -352,18 +354,18 @@ The Activity Diagram in Figure \ref{fig:activity} illustrates the operational wo
     action/.style={
         rectangle, 
         rounded corners=3pt, 
-        draw=blue!80!black, 
-        fill=blue!8, 
+        draw=black, 
+        fill=white, 
         thick, 
-        text width=4.4cm, 
+        text width=4.6cm, 
         minimum height=0.75cm, 
         align=center, 
         font=\footnotesize\sffamily
     },
     decision/.style={
         diamond, 
-        draw=teal!80!black, 
-        fill=teal!15, 
+        draw=black, 
+        fill=white, 
         thick, 
         text width=2.0cm, 
         minimum height=1.0cm, 
@@ -374,8 +376,8 @@ The Activity Diagram in Figure \ref{fig:activity} illustrates the operational wo
     error/.style={
         rectangle, 
         rounded corners=3pt, 
-        draw=orange!80!black, 
-        fill=orange!15, 
+        draw=black, 
+        fill=white, 
         thick, 
         text width=3.2cm, 
         minimum height=0.75cm, 
@@ -385,7 +387,7 @@ The Activity Diagram in Figure \ref{fig:activity} illustrates the operational wo
     arrow/.style={
         -{Stealth[length=2.2mm]}, 
         thick, 
-        color=black!75
+        draw=black
     }
 ]
 
@@ -397,7 +399,7 @@ The Activity Diagram in Figure \ref{fig:activity} illustrates the operational wo
 \node[action, below=1.2cm of dec1] (filter) {Traverse \& Apply Exclusion Filters};
 \node[action, below=of filter] (ast) {Parse Tree-sitter AST \& Complexity};
 \node[action, below=of ast] (clones) {Tokenize, Window Hash \& Expand Clones};
-\node[action, below=of clones] (score) {Compute Technical Debt Score ($R$)};
+\node[action, below=of clones] (score) {Compute Technical Debt\\[1pt]Score ($R$)};
 \node[action, below=of score] (store) {Update In-Memory Scan Record};
 \node[action, below=of store] (ui) {Render Dashboard Hotspots \& Charts};
 \node[startstop, below=of ui] (stop) {Stop};

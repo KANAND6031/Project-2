@@ -22,7 +22,7 @@ Black-box testing treated the analysis engine and REST API as complete, opaque u
 \begin{itemize}
     \item Evaluated the full scan workflow from repository registration to in-memory persistence and report generation.
     \item Verified that duplicate clone percentages reported by the tool matched the exact ground-truth duplicated lines in controlled test repositories.
-    \item Assessed that REST API endpoints (\texttt{GET /api/scans/:id}, \texttt{GET /api/scans/:id/export}) return well-formed JSON, Markdown, and CSV payloads adhering strictly to the API specification.
+    \item Assessed that REST API endpoints return well-formed JSON, Markdown, and CSV payloads adhering strictly to the API specification.
 \end{itemize}
 
 \subsection{Edge Case Testing}
@@ -46,75 +46,29 @@ To systematically validate each operational phase, a dedicated test harness was 
 \section{Runtime Performance and Throughput Benchmarking}
 To quantify runtime efficiency, CodeInsight was benchmarked across repositories of varying sizes, ranging from small modular utilities to multi-thousand line production packages. Benchmarks were conducted on a standard development machine (Intel Core i7-12700H, 16~GB RAM, Windows 11).
 
-Figure \ref{fig:perf_chart} illustrates the execution time of CodeInsight across increasing codebase sizes.
-
-\begin{figure}[htbp]
-\centering
-\begin{tikzpicture}
-\begin{scope}[font=\small\sffamily]
-    % Axes
-    \draw[->, thick, color=black!70] (0, 0) -- (10.5, 0) node[right] {Lines of Code (LOC)};
-    \draw[->, thick, color=black!70] (0, 0) -- (0, 5.5) node[above] {Scan Time (Seconds)};
-    
-    % X grid and ticks
-    \foreach \x/\val in {1.8/10K, 3.8/25K, 5.8/50K, 7.8/75K, 9.8/100K} {
-        \draw[dotted, color=black!20] (\x, 0) -- (\x, 5.0);
-        \draw (\x, 0.1) -- (\x, -0.1) node[below] {\val};
-    }
-    
-    % Y grid and ticks
-    \foreach \y/\val in {1.0/0.5s, 2.0/1.0s, 3.0/1.5s, 4.0/2.0s, 5.0/2.5s} {
-        \draw[dotted, color=black!20] (0, \y) -- (10.0, \y);
-        \draw (0.1, \y) -- (-0.1, \y) node[left] {\val};
-    }
-    
-    % Plot line: CodeInsight
-    \draw[thick, color=blue!70!black, mark=*, mark size=2.5pt] 
-        plot coordinates {
-            (0.5, 0.18)   % 2K LOC: ~0.09s
-            (1.8, 0.42)   % 10K LOC: ~0.21s
-            (3.8, 0.95)   % 25K LOC: ~0.48s
-            (5.8, 1.90)   % 50K LOC: ~0.95s
-            (7.8, 2.95)   % 75K LOC: ~1.48s
-            (9.8, 4.10)   % 100K LOC: ~2.05s
-        };
-        
-    % Node labels
-    \node[right, font=\footnotesize\bfseries, color=blue!80!black] at (9.8, 4.2) {CodeInsight Engine};
-    
-    % Annotations
-    \draw[<-, thick, color=teal!80!black] (1.8, 0.45) -- (2.6, 1.4) 
-        node[above, text width=2.6cm, font=\scriptsize, align=center] {10K LOC analyzed\\ in 210 ms};
-        
-    \draw[<-, thick, color=indigo!80!black] (9.8, 4.1) -- (8.5, 4.8) 
-        node[above, text width=2.8cm, font=\scriptsize, align=center] {100K LOC completed\\ in under 2.1 seconds};
-\end{scope}
-\end{tikzpicture}
-\caption{Analysis Execution Time vs. Repository Lines of Code}
-\label{fig:perf_chart}
-\end{figure}
-
-The empirical scaling curves confirm that CodeInsight scales near-linearly with repository size. For codebases under 25,000 LOC, the analysis completes in less than 500 milliseconds. Even at 100,000 LOC, total execution time remains under 2.1 seconds, achieving an average parsing and clone detection throughput of approximately \textbf{48,500 lines per second}.
+The empirical benchmarks confirm that CodeInsight scales near-linearly with repository size. For codebases under 25,000 LOC, the analysis completes in less than 500 milliseconds. Even at 100,000 LOC, total execution time remains under 2.1 seconds, achieving an average parsing and clone detection throughput of approximately \textbf{48,500 lines per second}.
 
 Table \ref{tab:benchmarks} summarizes detailed runtime benchmarks and memory consumption across the tested codebases.
 
 \begin{table}[htbp]
 \centering
+\footnotesize
 \caption{Runtime Performance and Throughput Benchmarking}
 \label{tab:benchmarks}
 \vspace{0.2cm}
-\begin{tabular}{lrrrr}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{@{}p{5.2cm}rrrr@{}}
 \toprule
 \textbf{Repository Scope} & \textbf{Total LOC} & \textbf{File Count} & \textbf{Execution Time} & \textbf{Peak Memory} \\
 \midrule
-\texttt{sample-repo} (Minimal fixture) & 721 & 3 & 38 ms & 24 MB \\
-\texttt{duplication-repo} (Clone fixture) & 1,884 & 4 & 62 ms & 28 MB \\
-\texttt{complex-repo} (Multi-language) & 4,120 & 11 & 115 ms & 34 MB \\
-Utility Library Suite & 24,500 & 78 & 480 ms & 52 MB \\
-Medium Web Application & 52,300 & 164 & 950 ms & 78 MB \\
-Large Full-Stack System & 102,400 & 312 & 2,050 ms & 124 MB \\
+sample-repo (Minimal fixture)     & 721     & 3   & 38 ms    & 24 MB  \\
+duplication-repo (Clone fixture)  & 1,884   & 4   & 62 ms    & 28 MB  \\
+complex-repo (Multi-language)     & 4,120   & 11  & 115 ms   & 34 MB  \\
+Utility Library Suite             & 24,500  & 78  & 480 ms   & 52 MB  \\
+Medium Web Application            & 52,300  & 164 & 950 ms   & 78 MB  \\
+Large Full-Stack System           & 102,400 & 312 & 2,050 ms & 124 MB \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \section{Complexity and Risk Metric Evaluation}
@@ -122,10 +76,12 @@ To evaluate the precision of the Tree-sitter AST complexity calculations, the en
 
 \begin{table}[htbp]
 \centering
+\small
 \caption{Complexity and Nesting Depth Metrics on Test Fixture Suite}
 \label{tab:complexity_results}
 \vspace{0.2cm}
-\begin{tabular}{lcccc}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X c c c c}
 \toprule
 \textbf{Function / Component Under Test} & \textbf{Expected $M$} & \textbf{Extracted $M$} & \textbf{Max Nesting ($N$)} & \textbf{Parameters} \\
 \midrule
@@ -135,7 +91,7 @@ To evaluate the precision of the Tree-sitter AST complexity calculations, the en
 \texttt{validateAuthHeader()} (\&\&, || short-circuits) & 4 & 4 & 1 & 2 \\
 \texttt{legacyParser()} (Nested loops, 7 branches) & 11 & 11 & 4 & 5 \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 As shown in Table \ref{tab:complexity_results}, the extracted cyclomatic complexity matched theoretical control-flow graph definitions with \textbf{100\% fidelity}. The inclusion of short-circuit operators proved critical, accurately reflecting the true decision paths traversed during execution.
@@ -145,18 +101,20 @@ The sliding-window token hashing algorithm was verified on \texttt{duplication-r
 
 \begin{table}[htbp]
 \centering
+\footnotesize
 \caption{Duplicate Clone Detection Verification on Controlled Clones}
 \label{tab:clone_results}
 \vspace{0.2cm}
-\begin{tabular}{lcccc}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\textwidth}{@{}lp{4.2cm}ccc@{}}
 \toprule
 \textbf{Clone Group} & \textbf{Participating Files} & \textbf{Duplicate Lines} & \textbf{Token Length} & \textbf{Status} \\
 \midrule
-\texttt{DUP-001} & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 20 lines & 142 tokens & \textbf{Detected} \\
-\texttt{DUP-002} & \texttt{file\_c.js}, \texttt{file\_d.js} & 18 lines & 118 tokens & \textbf{Detected} \\
-Trivial Braces & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 5 lines ($< 30$ chars) & 12 tokens & \textbf{Suppressed} \\
+DUP-001        & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 20 lines              & 142 tokens & \textbf{Detected}   \\
+DUP-002        & \texttt{file\_c.js}, \texttt{file\_d.js}   & 18 lines              & 118 tokens & \textbf{Detected}   \\
+Trivial Braces & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 5 lines ($<30$ chars) & 12 tokens  & \textbf{Suppressed} \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 The clone detector achieved 100\% recall on the ground-truth clone groups while correctly filtering out the trivial closing braces, preventing noisy false alarms.
@@ -166,6 +124,7 @@ To evaluate the distinct advantages of CodeInsight, we compared its architectura
 
 \begin{table}[htbp]
 \centering
+\footnotesize
 \caption{Comparative Analysis with Existing Static Analysis Solutions}
 \label{tab:comparison}
 \vspace{0.2cm}
@@ -194,6 +153,7 @@ To evaluate the distinct advantages of CodeInsight, we compared its architectura
 
 As highlighted in Table \ref{tab:comparison}, while SonarQube provides comprehensive enterprise features, its dependence on external databases and high memory overhead makes it cumbersome for rapid local feedback. Conversely, linters like ESLint and Clang-Tidy are fast but lack high-level architectural debt scoring and clone detection. CodeInsight successfully bridges this gap, delivering enterprise-level structural insights with the lightweight immediacy of modern developer tooling.
 
+\clearpage
 \section{Hotspot Detection and Severity Distribution}
 Figure \ref{fig:sev_dist} shows the technical debt severity distribution observed during testing of the multi-language test repository.
 
