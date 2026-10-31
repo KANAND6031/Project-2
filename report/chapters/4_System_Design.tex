@@ -1,0 +1,351 @@
+\chapter{System Design}
+
+\section{System Architecture}
+The system architecture of CodeInsight is designed as a modular, three-tiered decoupled pipeline that processes raw source code repositories into structured, actionable technical debt telemetry. The architecture cleanly separates concerns across the user presentation layer, the application orchestration layer, and the core analysis engine. 
+
+By avoiding monolithic coupling and eliminating external database daemons, each tier can be independently tested, optimized, and extended. Figure \ref{fig:sys_arch} presents the high-level block diagram of the system architecture.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1.4cm and 1.2cm,
+    box/.style={
+        rectangle, 
+        rounded corners=4pt, 
+        draw=blue!70!black, 
+        fill=blue!5, 
+        thick, 
+        text width=4.0cm, 
+        minimum height=1.1cm, 
+        align=center, 
+        font=\small\sffamily
+    },
+    subbox/.style={
+        rectangle, 
+        rounded corners=3pt, 
+        draw=gray!60, 
+        fill=white, 
+        text width=3.6cm, 
+        minimum height=0.7cm, 
+        align=center, 
+        font=\footnotesize\sffamily
+    },
+    groupbox/.style={
+        rectangle, 
+        rounded corners=6pt, 
+        draw=black!40, 
+        fill=black!2, 
+        dashed, 
+        inner sep=0.4cm
+    },
+    arrow/.style={
+        -{Stealth[length=2.5mm,width=1.8mm]}, 
+        thick, 
+        color=blue!80!black
+    },
+    darrow/.style={
+        {Stealth[length=2.2mm]}-{Stealth[length=2.2mm]}, 
+        thick, 
+        color=blue!80!black
+    }
+]
+
+% Tier 1: Frontend
+\node[box, fill=teal!10, draw=teal!70!black] (fe) {\textbf{React 18 / Vite Dashboard}\\ \footnotesize (Developer-First Web UI)};
+\node[subbox, below=0.2cm of fe] (fe_sub) {Overview Hotspots, File Table,\\ Duplicate Viewer, Modal Inspector};
+
+% Tier 2: Backend
+\node[box, fill=indigo!10, draw=indigo!70!black, below=1.4cm of fe_sub] (be) {\textbf{Node.js Express Server}\\ \footnotesize (API Gateway \& Orchestrator)};
+\node[subbox, below=0.2cm of be] (be_sub) {Scan Job Queue, REST Handlers,\\ In-Memory Storage, Exporters};
+
+% Tier 3: Core Analyzer
+\node[box, fill=blue!10, draw=blue!70!black, below=1.4cm of be_sub] (ae) {\textbf{CodeInsight Analysis Engine}\\ \footnotesize (High-Performance Core)};
+\node[subbox, below=0.2cm of ae] (ae_sub) {Tree-sitter AST, Token Hashing,\\ McCabe Complexity, Risk Scorer};
+
+% Connections
+\draw[darrow] (fe_sub) -- node[right, font=\scriptsize\sffamily, text=black!70] {REST API / HTTP JSON} (be);
+\draw[darrow] (be_sub) -- node[right, font=\scriptsize\sffamily, text=black!70] {Subprocess / JSON IPC} (ae);
+
+% Outer grouping labels
+\node[left=0.6cm of fe, font=\small\bfseries\sffamily, text=teal!80!black, rotate=90] {Presentation Tier};
+\node[left=0.6cm of be, font=\small\bfseries\sffamily, text=indigo!80!black, rotate=90] {Orchestration Tier};
+\node[left=0.6cm of ae, font=\small\bfseries\sffamily, text=blue!80!black, rotate=90] {Analysis Core Tier};
+
+\end{tikzpicture}
+\caption{Block Diagram of the System Architecture}
+\label{fig:sys_arch}
+\end{figure}
+
+The three architectural layers interact through well-defined protocols:
+\begin{enumerate}
+    \item \textbf{Presentation Tier (React Frontend):} Built with React 18 and Vite, the frontend delivers a high-density, dark-themed developer tool aesthetic. It communicates with the backend via RESTful endpoints, rendering interactive Recharts visualizations, sortable file explorer grids, detailed function complexity modals, and clustered duplicate clone comparisons.
+    \item \textbf{Orchestration Tier (Node.js Express Backend):} The Node.js application serves as the API gateway and coordinator. It manages an asynchronous job queue for executing repository scans in the background, tracks job progression, persists all repository and scan records inside an efficient in-memory storage service (\texttt{StorageService}), and formats scan exports into JSON, Markdown, and CSV. In production mode, it also serves the compiled frontend assets directly from a single port.
+    \item \textbf{Analysis Core Tier (C++ \& AST Engine):} The analysis core is responsible for heavy computational workloads. It performs recursive directory discovery with intelligent file exclusion, parses source files into concrete syntax trees using Tree-sitter, computes McCabe cyclomatic complexity and nesting depth, executes sliding-window token hashing for duplicate clone detection, and calculates the unified technical debt score.
+\end{enumerate}
+
+\section{Data Flow Diagram (DFD)}
+Data Flow Diagrams provide a visual mapping of how information enters, flows through, and exits the CodeInsight platform. They model the functional transformations applied to source files from raw repository input to completed health reports.
+
+\subsection{DFD Level 0 (Context Diagram)}
+The Context Diagram (Level 0) represents the highest-level operational boundary of CodeInsight, viewing the entire platform as a single centralized system interacting with the software engineer and the target file system.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=3.0cm and 3.5cm,
+    entity/.style={
+        rectangle, 
+        draw=black!80, 
+        fill=blue!8, 
+        thick, 
+        text width=2.6cm, 
+        minimum height=1.3cm, 
+        align=center, 
+        font=\small\sffamily\bfseries
+    },
+    process/.style={
+        circle, 
+        draw=indigo!80!black, 
+        fill=indigo!10, 
+        thick, 
+        text width=3.0cm, 
+        minimum height=3.0cm, 
+        align=center, 
+        font=\small\sffamily
+    },
+    arrow/.style={
+        -{Stealth[length=2.5mm]}, 
+        thick, 
+        color=black!75
+    }
+]
+
+\node[entity] (user) {Software Developer};
+\node[process, right=2.8cm of user] (system) {\textbf{0.0}\\ \textbf{CodeInsight}\\ \textbf{Platform}};
+\node[entity, right=2.8cm of system] (fs) {Target Source\\ Repository};
+
+% Arrows
+\draw[arrow] (user.north east) -- node[above, font=\scriptsize\sffamily, sloped] {Repo Path \& Scan Config} (system.north west);
+\draw[arrow] (system.south west) -- node[below, font=\scriptsize\sffamily, sloped] {Debt Telemetry \& Visual Dashboard} (user.south east);
+
+\draw[arrow] (system.north east) -- node[above, font=\scriptsize\sffamily, sloped] {Read Directory Tree} (fs.north west);
+\draw[arrow] (fs.south west) -- node[below, font=\scriptsize\sffamily, sloped] {Raw Source Code Files} (system.south east);
+
+\end{tikzpicture}
+\caption{DFD Level 0 (Context Diagram)}
+\label{fig:dfd0}
+\end{figure}
+
+As depicted in Figure \ref{fig:dfd0}, the developer supplies a local file system directory path and optional risk formula weights. The platform accesses the target codebase, reads raw source code files, executes parsing and scoring, and returns comprehensive debt telemetry, clone clusters, and visual summaries to the user interface.
+
+\subsection{DFD Level 1}
+The Level 1 Data Flow Diagram decomposes the system into its primary operational sub-processes and tracks data movement into the in-memory data store, as shown in Figure \ref{fig:dfd1}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1.5cm and 1.8cm,
+    entity/.style={
+        rectangle, 
+        draw=black!80, 
+        fill=teal!8, 
+        thick, 
+        text width=2.2cm, 
+        minimum height=1.1cm, 
+        align=center, 
+        font=\small\sffamily\bfseries
+    },
+    proc/.style={
+        circle, 
+        draw=blue!80!black, 
+        fill=blue!8, 
+        thick, 
+        text width=1.8cm, 
+        minimum height=1.8cm, 
+        align=center, 
+        font=\scriptsize\sffamily
+    },
+    store/.style={
+        rectangle, 
+        draw=indigo!80, 
+        fill=indigo!5, 
+        thick, 
+        text width=2.4cm, 
+        minimum height=0.8cm, 
+        align=center, 
+        font=\scriptsize\sffamily\bfseries
+    },
+    arrow/.style={
+        -{Stealth[length=2.2mm]}, 
+        thick, 
+        color=black!70
+    }
+]
+
+\node[entity] (user) at (0, 0) {Developer};
+\node[proc] (p1) at (3.2, 0) {\textbf{1.0}\\ File Filter\\ \& Discovery};
+\node[proc] (p2) at (7.0, 0) {\textbf{2.0}\\ AST Parse\\ \& Complexity};
+\node[proc] (p3) at (10.8, 0) {\textbf{3.0}\\ Token Hash\\ \& Clones};
+
+\node[proc] (p4) at (10.8, -3.2) {\textbf{4.0}\\ Debt Risk\\ Scoring};
+\node[store] (store) at (5.5, -3.2) {In-Memory\\ Data Store};
+\node[proc] (p5) at (0, -3.2) {\textbf{5.0}\\ Dashboard\\ Telemetry};
+
+% Flow connections
+\draw[arrow] (user) -- node[above, font=\tiny\sffamily] {Repo Path} (p1);
+\draw[arrow] (p1) -- node[above, font=\tiny\sffamily] {Source Files} (p2);
+\draw[arrow] (p2) -- node[above, font=\tiny\sffamily] {Functions \& AST} (p3);
+\draw[arrow] (p3) -- node[right, font=\tiny\sffamily] {Clone Groups} (p4);
+\draw[arrow] (p2.south) |- node[near start, below, font=\tiny\sffamily] {Function Metrics} (p4.west);
+
+\draw[arrow] (p4) -- node[above, font=\tiny\sffamily] {Scored Snapshots} (store);
+\draw[arrow] (store) -- node[above, font=\tiny\sffamily] {Aggregated Metrics} (p5);
+\draw[arrow] (p5) -- node[left, font=\tiny\sffamily] {Rendered UI} (user);
+
+\end{tikzpicture}
+\caption{Data Flow Diagram (DFD Level 1) of the System}
+\label{fig:dfd1}
+\end{figure}
+
+In Figure \ref{fig:dfd1}, the repository path passes to Process 1.0 (File Filtering \& Discovery), which ignores minified files, vendor dependencies, and binary assets. Valid source files flow into Process 2.0 (AST Parsing \& Complexity Extraction) to determine function-level decision points and nesting depths. Concurrently, Process 3.0 (Token Hashing \& Clones) executes sliding-window matching to identify duplicate blocks. Both metric streams feed into Process 4.0 (Debt Risk Scoring), which computes the composite risk formula and populates the In-Memory Data Store. Finally, Process 5.0 (Dashboard Telemetry) pulls the stored snapshots and renders real-time visual reports.
+
+\subsection{DFD Level 2 (Inference / Debt Scoring Process Decomposition)}
+Figure \ref{fig:dfd2} provides a granular decomposition of Process 4.0, illustrating the mathematical steps required to calculate technical debt risk scores and priority tiers.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1.4cm and 1.8cm,
+    proc/.style={
+        circle, 
+        draw=indigo!80!black, 
+        fill=indigo!8, 
+        thick, 
+        text width=2.0cm, 
+        minimum height=2.0cm, 
+        align=center, 
+        font=\scriptsize\sffamily
+    },
+    arrow/.style={
+        -{Stealth[length=2.2mm]}, 
+        thick, 
+        color=black!75
+    }
+]
+
+\node[proc] (p41) at (0, 0) {\textbf{4.1}\\ Metric Extraction\\ \& Normalization};
+\node[proc] (p42) at (4.0, 0) {\textbf{4.2}\\ Structural Score\\ $S = \sum w_i M_i$};
+\node[proc] (p43) at (8.0, 0) {\textbf{4.3}\\ Composite Risk\\ $R = 0.45C + \dots$};
+\node[proc] (p44) at (12.0, 0) {\textbf{4.4}\\ Priority Triage\\ ($P1 - P4$)};
+
+% Data flow
+\draw[arrow] (-2.2, 0) -- node[above, font=\tiny\sffamily] {AST \& Clones} (p41);
+\draw[arrow] (p41) -- node[above, font=\tiny\sffamily] {Mapped $L, N, P$} (p42);
+\draw[arrow] (p42) -- node[above, font=\tiny\sffamily] {Structural $S$} (p43);
+\draw[arrow] (p41.south) to[bend right=25] node[below, font=\tiny\sffamily] {Complexity $C$, Duplication $D$} (p43.south);
+\draw[arrow] (p43) -- node[above, font=\tiny\sffamily] {Risk Score $R$} (p44);
+\draw[arrow] (p44) -- node[above, font=\tiny\sffamily] {Final Report} (14.2, 0);
+
+\end{tikzpicture}
+\caption{DFD Level 2 (Decomposition of Technical Debt Scoring Process)}
+\label{fig:dfd2}
+\end{figure}
+
+The Level 2 DFD shows how raw metrics are mapped into discrete ranges:
+\begin{itemize}
+    \item Sub-process 4.1 maps cyclomatic complexity into score $C$, duplication percentage into $D$, and physical metrics into length $L$, nesting depth $N$, and parameter count $P$.
+    \item Sub-process 4.2 combines the sub-metrics to calculate the structural risk score: $S = 0.40L + 0.35N + 0.25P$.
+    \item Sub-process 4.3 calculates the composite risk score: $R = 0.45C + 0.35D + 0.20S$, binding $R$ to the range $[0, 100]$.
+    \item Sub-process 4.4 computes the remediation priority rating ($P1$ to $P4$) by factoring in the number of high-complexity functions and refactoring effort.
+\end{itemize}
+
+\section{Activity Diagram}
+The Activity Diagram in Figure \ref{fig:activity} illustrates the operational workflow executed when a developer triggers a repository scan through the CodeInsight interface.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=1.1cm,
+    startstop/.style={
+        ellipse, 
+        draw=red!70!black, 
+        fill=red!15, 
+        thick, 
+        minimum width=2.4cm, 
+        minimum height=0.7cm, 
+        align=center, 
+        font=\small\sffamily\bfseries
+    },
+    action/.style={
+        rectangle, 
+        rounded corners=3pt, 
+        draw=blue!80!black, 
+        fill=blue!8, 
+        thick, 
+        text width=4.4cm, 
+        minimum height=0.75cm, 
+        align=center, 
+        font=\footnotesize\sffamily
+    },
+    decision/.style={
+        diamond, 
+        draw=teal!80!black, 
+        fill=teal!15, 
+        thick, 
+        text width=2.0cm, 
+        minimum height=1.0cm, 
+        align=center, 
+        font=\scriptsize\sffamily\bfseries, 
+        inner sep=0pt
+    },
+    error/.style={
+        rectangle, 
+        rounded corners=3pt, 
+        draw=orange!80!black, 
+        fill=orange!15, 
+        thick, 
+        text width=3.2cm, 
+        minimum height=0.75cm, 
+        align=center, 
+        font=\footnotesize\sffamily
+    },
+    arrow/.style={
+        -{Stealth[length=2.2mm]}, 
+        thick, 
+        color=black!75
+    }
+]
+
+\node[startstop] (start) {Start};
+\node[action, below=of start] (input) {Select or Input Repository Path};
+\node[decision, below=of input] (dec1) {Directory\\ Exists?};
+\node[error, right=1.6cm of dec1] (err) {Show Path Error Toast};
+
+\node[action, below=1.2cm of dec1] (filter) {Traverse \& Apply Exclusion Filters};
+\node[action, below=of filter] (ast) {Parse Tree-sitter AST \& Complexity};
+\node[action, below=of ast] (clones) {Tokenize, Window Hash \& Expand Clones};
+\node[action, below=of clones] (score) {Compute Technical Debt Score ($R$)};
+\node[action, below=of score] (store) {Update In-Memory Scan Record};
+\node[action, below=of store] (ui) {Render Dashboard Hotspots \& Charts};
+\node[startstop, below=of ui] (stop) {Stop};
+
+% Connections
+\draw[arrow] (start) -- (input);
+\draw[arrow] (input) -- (dec1);
+\draw[arrow] (dec1) -- node[above, font=\scriptsize\sffamily] {No} (err);
+\draw[arrow] (err) |- (input);
+\draw[arrow] (dec1) -- node[right, font=\scriptsize\sffamily] {Yes} (filter);
+\draw[arrow] (filter) -- (ast);
+\draw[arrow] (ast) -- (clones);
+\draw[arrow] (clones) -- (score);
+\draw[arrow] (score) -- (store);
+\draw[arrow] (store) -- (ui);
+\draw[arrow] (ui) -- (stop);
+
+\end{tikzpicture}
+\caption{Activity Diagram of the Scan and Analysis Workflow}
+\label{fig:activity}
+\end{figure}
+
+As shown in Figure \ref{fig:activity}, execution begins when a developer specifies a repository path in the UI. If the path does not exist on disk, an immediate notification is displayed and input focus returns to the prompt. Once verified, the worker thread filters irrelevant assets, computes AST-based cyclomatic complexity and nesting levels, hashes normalized token windows to uncover maximal clone blocks, calculates the composite technical debt risk formula, saves the snapshot to in-memory storage, and renders the updated dashboard views.
+

@@ -1,0 +1,331 @@
+\documentclass[12pt,a4paper]{report}
+
+% Page Geometry & Margins
+\usepackage[top=1in,bottom=1in,left=1.2in,right=1in]{geometry}
+
+% Core Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{fouriernc}
+\usepackage[dvipsnames,svgnames,x11names]{xcolor}
+\colorlet{indigo}{blue!70!black}
+\colorlet{teal}{green!50!blue}
+\colorlet{amber}{orange!80!yellow}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[protrusion=true,expansion=false]{microtype}
+\usepackage{tabularx}
+
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% TikZ for Diagrams
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, backgrounds}
+
+% Hyperref Setup
+\usepackage[hidelinks]{hyperref}
+
+% Line Spacing
+\setstretch{1.2}
+
+% Header and Footer setup
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\small\slshape\leftmark}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\headheight}{15pt}
+
+% Title formats
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{18pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{10pt}{25pt}
+
+% Front matter TOC layout (matching ref/main.pdf with bold headings)
+\makeatletter
+\newcommand{\l@frontmatter}[2]{%
+  \vskip 0.6em \noindent {\bfseries #1}\hfill {\bfseries #2}\par
+}
+\makeatother
+
+\begin{document}
+
+% ==========================================
+% COVER / TITLE PAGE
+% ==========================================
+\begin{titlepage}
+\centering
+\vspace*{1.0cm}
+
+{\LARGE \textbf{CodeInsight: Automated Codebase Health \&\\[0.3cm] Technical Debt Prioritization Platform}\par}
+
+\vspace{1.0cm}
+{\large A report submitted for the course named Project II (CS3202)\par}
+
+\vspace{2.2cm}
+{\large Submitted By\par}
+\vspace{0.2cm}
+{\large \textbf{KRISHNA ANAND}\par}
+{\large SEMESTER VI\par}
+{\large 230101082\par}
+
+\vspace{1.6cm}
+{\large Supervised By\par}
+\vspace{0.2cm}
+{\large \textbf{DR. RAJKUMARI BIDYALAKSHMI DEVI}\par}
+
+\vspace{2.0cm}
+\includegraphics[width=3.2cm]{iiit manipur.png}\par
+
+\vspace{1.0cm}
+{\small \textbf{DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING}\par}
+{\small \textbf{INDIAN INSTITUTE OF INFORMATION TECHNOLOGY SENAPATI,}\par}
+{\small \textbf{MANIPUR}\par}
+\vspace{0.2cm}
+{\small \textbf{APRIL 2026}\par}
+
+\end{titlepage}
+
+% ==========================================
+% FRONT MATTER (Declaration to List of Tables)
+% ==========================================
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ------------------------------------------
+% DECLARATION
+% ------------------------------------------
+\newpage
+\thispagestyle{plain}
+\phantomsection
+\addcontentsline{toc}{frontmatter}{Declaration}
+\begin{center}
+    {\LARGE \textbf{Declaration}\par}
+\end{center}
+\vspace{1.5cm}
+
+In this submission, I have expressed my idea in my own words, and I have adequately cited and referenced any ideas or words that were taken from another source. I also declare that I adhere to all principles of academic honesty and integrity and that I have not misrepresented or falsified any ideas, data, facts, or sources in this submission. If any violation of the above is made, I understand that the institute may take disciplinary action. Such a violation may also engender disciplinary action from the sources which were not properly cited or permission not taken when needed.
+
+\vspace{3.5cm}
+\begin{flushright}
+\textbf{KRISHNA ANAND}\\
+230101082
+\end{flushright}
+
+\vspace{1.5cm}
+\noindent \textbf{DATE:}
+
+% ------------------------------------------
+% CERTIFICATE / TO WHOM IT MAY CONCERN
+% ------------------------------------------
+\newpage
+\thispagestyle{plain}
+\phantomsection
+\addcontentsline{toc}{frontmatter}{Certificate}
+
+\begin{minipage}[c]{0.18\textwidth}
+    \includegraphics[width=2.2cm]{iiit manipur.png}
+\end{minipage}
+\begin{minipage}[c]{0.80\textwidth}
+    \centering
+    {\small \textbf{Department of Computer Science and Engineering}\par}
+    {\small \textbf{Indian Institute of Information Technology Senapati, Manipur}\par}
+\end{minipage}
+
+\vspace{0.2cm}
+\noindent\rule{\textwidth}{0.8pt}
+
+\vspace{0.2cm}
+\noindent
+\begin{minipage}[t]{0.5\textwidth}
+    \small
+    \textbf{Dr. Rajkumari Bidyalakshmi Devi}\\
+    Assistant Professor, CSE, IIIT Manipur
+\end{minipage}
+\begin{minipage}[t]{0.48\textwidth}
+    \small\raggedleft
+    Email: bidyalakshmi@iiitmanipur.ac.in\\
+    Contact No: 7005126046
+\end{minipage}
+
+\vspace{1.8cm}
+\begin{center}
+    {\Large \textit{To Whom It May Concern}\par}
+\end{center}
+\vspace{1.2cm}
+
+This is to certify that the project report entitled ``\textbf{CodeInsight: Automated Codebase Health \& Technical Debt Prioritization Platform},'' submitted to the Department of Computer Science and Engineering, Indian Institute of Information Technology Senapati, Manipur in partial fulfilment for the award of degree of Bachelor of Technology in Computer Science and Engineering is a record of bonafide work carried out by \textbf{KRISHNA ANAND} bearing roll number \textbf{230101082} for the course Project II (CS3202).
+
+\vspace{2.8cm}
+\begin{flushright}
+Signature of the Supervisor\\[0.2cm]
+\textbf{(DR. RAJKUMARI BIDYALAKSHMI DEVI)}
+\end{flushright}
+
+\vspace{1.8cm}
+\noindent Signature of the Examiner 1 \dotfill\\[0.3cm]
+\noindent Signature of the Examiner 2 \dotfill\\[0.3cm]
+\noindent Signature of the Examiner 3 \dotfill\\[0.3cm]
+\noindent Signature of the Examiner 4 \dotfill
+
+% ------------------------------------------
+% ABSTRACT
+% ------------------------------------------
+\newpage
+\thispagestyle{plain}
+\phantomsection
+\addcontentsline{toc}{frontmatter}{Abstract}
+\begin{center}
+    {\LARGE \textbf{Abstract}\par}
+\end{center}
+\vspace{1.0cm}
+
+As software systems grow and undergo rapid iterative enhancements, code quality frequently degrades under continuous delivery pressures, resulting in technical debt. Left unaddressed, technical debt manifests as high cognitive complexity, deeply nested control logic, and widespread copy-paste code duplication, drastically reducing developer velocity and increasing defect rates. Traditional enterprise code inspection suites impose heavy setup friction, requiring complex relational databases, container runtimes, and substantial memory allocations, while lightweight linters provide isolated style warnings without high-level architectural insight.
+
+This project presents \textbf{CodeInsight}, an automated codebase health analysis and technical debt prioritization platform engineered for immediate developer utility. CodeInsight pairs a high-performance C++ analysis engine powered by Tree-sitter abstract syntax tree (AST) parsing with a Node.js Express orchestration backend, a zero-dependency in-memory persistence layer, and a high-density React/Vite dashboard. The platform extracts exact function-level metrics—including McCabe cyclomatic complexity, nesting depth, and parameter counts—and identifies multi-file Type-1 code clones through a normalized sliding-window token hashing pipeline with maximal forward block expansion.
+
+To provide clear, actionable guidance, CodeInsight formulates an explainable technical debt risk score:
+\[
+R = 0.45C + 0.35D + 0.20S
+\]
+where structural debt $S$ is decomposed into physical length, nesting depth, and parameter volume ($S = 0.40L + 0.35N + 0.25P$). The platform generates explicit human-readable risk explanations and computes remediation priority tiers ($P1$ to $P4$) to help engineering leads focus refactoring resources effectively. By eliminating external database dependencies, CodeInsight achieves instantaneous startup in under 5 seconds, maintains an operational memory footprint under 120~MB, and achieves an AST parsing and clone detection throughput exceeding 48,000 lines of code per second.
+
+% ------------------------------------------
+% ACKNOWLEDGEMENT
+% ------------------------------------------
+\newpage
+\thispagestyle{plain}
+\phantomsection
+\addcontentsline{toc}{frontmatter}{Acknowledgement}
+\begin{center}
+    {\LARGE \textbf{Acknowledgement}\par}
+\end{center}
+\vspace{1.0cm}
+
+I am deeply grateful to my project supervisor, \textbf{Dr. Rajkumari Bidyalakshmi Devi}, for her continuous guidance, valuable technical feedback, and encouragement throughout the development of this project. Her insights into software engineering methodologies, formal program analysis, and architectural design were instrumental in shaping the evaluation framework and metric formulations of CodeInsight.
+
+I would also like to express my sincere appreciation to the faculty members and peers at the Department of Computer Science and Engineering, Indian Institute of Information Technology Senapati, Manipur, for their constructive critiques and helpful suggestions during the development and benchmarking phases of this work.
+
+\vspace{3.5cm}
+\begin{flushright}
+\textbf{Krishna Anand}\\
+230101082
+\end{flushright}
+
+% ------------------------------------------
+% TABLE OF CONTENTS, LIST OF FIGURES & TABLES
+% ------------------------------------------
+\newpage
+\tableofcontents
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{frontmatter}{List of Figures}
+\listoffigures
+
+\newpage
+\phantomsection
+\addcontentsline{toc}{frontmatter}{List of Tables}
+\listoftables
+
+% ==========================================
+% MAIN CHAPTERS (Continuous numbering)
+% ==========================================
+\newpage
+
+\input{chapters/1_Introduction.tex}
+\input{chapters/2_Literature_Survey.tex}
+\input{chapters/3_Requirement.tex}
+\input{chapters/4_System_Design.tex}
+\input{chapters/5_Implementation.tex}
+\input{chapters/6_Results.tex}
+\input{chapters/7_Conclusion.tex}
+
+% ==========================================
+% BIBLIOGRAPHY
+% ==========================================
+\newpage
+\begin{thebibliography}{99}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+\bibitem{mccabe1976}
+Thomas~J. McCabe.
+\newblock A complexity measure.
+\newblock {\em IEEE Transactions on Software Engineering}, SE-2(4):308--320, 1976.
+
+\bibitem{cunningham1992}
+Ward Cunningham.
+\newblock The {WyCash} portfolio management system.
+\newblock {\em ACM SIGPLAN OOPS Messenger}, 4(2):29--30, 1992.
+
+\bibitem{bellon2007}
+Stefan Bellon, Rainer Koschke, Giulio Antoniol, Jens Krinke, and Ettore Merlo.
+\newblock Comparison and evaluation of clone detection tools.
+\newblock {\em IEEE Transactions on Software Engineering}, 33(9):577--591, 2007.
+
+\bibitem{roy2007}
+Chanchal~K. Roy and James~R. Cordy.
+\newblock A survey on software clone detection research.
+\newblock {\em School of Computing TR 2007-541, Queen's University}, 115:64--68, 2007.
+
+\bibitem{treesitter}
+Max Brunsfeld.
+\newblock Tree-sitter: An incremental parsing system for programming tools.
+\newblock {\em GitHub Repository and Documentation}, \url{https://tree-sitter.github.io/tree-sitter/}, 2018.
+
+\bibitem{avgeriou2016}
+Paris Avgeriou, Philippe Kruchten, Ipek Ozkaya, and Carolyn Seaman.
+\newblock Managing technical debt in software engineering.
+\newblock {\em Dagstuhl Reports}, 6(1):110--138, 2016.
+
+\bibitem{fowler1999}
+Martin Fowler.
+\newblock {\em Refactoring: Improving the Design of Existing Code}.
+\newblock Addison-Wesley Professional, Reading, MA, 1999.
+
+\bibitem{martin2008}
+Robert~C. Martin.
+\newblock {\em Clean Code: A Handbook of Agile Software Craftsmanship}.
+\newblock Prentice Hall, Upper Saddle River, NJ, 2008.
+
+\bibitem{halstead1977}
+Maurice~H. Halstead.
+\newblock {\em Elements of Software Science}.
+\newblock Elsevier North-Holland, New York, 1977.
+
+\bibitem{sonarqube}
+SonarSource.
+\newblock SonarQube: Continuous inspection of code quality and security.
+\newblock {\em Documentation and Architecture Guide}, \url{https://docs.sonarsource.com/sonarqube/}, 2023.
+
+\bibitem{eslint}
+Nicholas~C. Zakas.
+\newblock ESLint: Pluggable and configurable linter tool for JavaScript and JSX.
+\newblock {\em Open Source Project Documentation}, \url{https://eslint.org/}, 2013.
+
+\bibitem{clangtidy}
+LLVM Project.
+\newblock Clang-Tidy: A clang-based C++ linter tool.
+\newblock {\em LLVM Compiler Infrastructure Documentation}, \url{https://clang.llvm.org/extra/clang-tidy/}, 2020.
+
+\bibitem{johnson1978}
+Stephen~C. Johnson.
+\newblock Lint, a C program checker.
+\newblock {\em Computer Science Technical Report 65, Bell Laboratories}, 1978.
+
+\bibitem{vite}
+Evan You.
+\newblock Vite: Next generation frontend tooling.
+\newblock {\em Vite Project Documentation}, \url{https://vitejs.dev/}, 2021.
+
+\end{thebibliography}
+
+\end{document}
+

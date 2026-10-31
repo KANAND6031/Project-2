@@ -1,0 +1,105 @@
+\chapter{Requirement Analysis}
+
+\section{Introduction}
+The requirement analysis phase defines the functional capabilities, operational constraints, and engineering specifications necessary to build the CodeInsight platform. The goal of CodeInsight is to provide software engineers with an immediate, accurate, and completely self-contained static analysis solution. 
+
+Unlike conventional enterprise code quality tools that impose heavy setup burdens, CodeInsight was conceived from the ground up to operate with zero external database dependencies, providing instantaneous codebase health evaluations through a clean single-server or development setup. Documenting both functional and non-functional requirements guarantees that the implemented platform is computationally efficient, deterministic, user-friendly, and maintainable.
+
+\section{Hardware Requirements}
+One of the primary design goals of CodeInsight is to ensure accessibility on standard developer workstations, avoiding the high memory and CPU overhead associated with enterprise analysis suites. The hardware requirements for running and developing CodeInsight are outlined below:
+
+\begin{itemize}
+    \item \textbf{Central Processing Unit (CPU):} Dual-core or quad-core modern processor (Intel Core i3/i5/i7, AMD Ryzen 3/5/7, or Apple Silicon). The multi-threaded C++ analysis engine and asynchronous Node.js event loop leverage multi-core architectures during large-scale directory scanning and token hashing.
+    \item \textbf{System Memory (RAM):} A minimum of \textbf{4~GB} of RAM is required, with \textbf{8~GB} recommended for analyzing repositories containing over 100,000 lines of code. Because CodeInsight utilizes an efficient in-memory data store rather than running a heavy Java Virtual Machine or relational database server, its memory footprint remains well below 150~MB during normal operation.
+    \item \textbf{Storage Space:} Approximately \textbf{250~MB} of available disk storage for the codebase, compiled native binaries, and node dependencies. No dedicated database disk storage allocation is needed.
+    \item \textbf{Display Resolution:} A minimum screen resolution of $1280 \times 720$ pixels, with $1920 \times 1080$ (Full HD) recommended to comfortably view the high-density metrics tables, distribution charts, and side-by-side code clone inspections.
+    \item \textbf{Network:} Internet connection for installing dependencies and development tools.
+\end{itemize}
+
+\section{Software Requirements}
+The software environment for CodeInsight was selected to ensure maximum cross-platform portability across Windows, Linux, and macOS environments:
+
+\begin{itemize}
+    \item \textbf{Operating System:} Windows 10/11 (64-bit), Ubuntu Linux 20.04+ (or equivalent POSIX Linux distribution), or macOS 12+.
+    \item \textbf{Runtime Environment:} \textbf{Node.js} version 18.0 or higher (actively tested and validated on Node.js v24.x LTS) with the \textbf{npm} package manager.
+    \item \textbf{C++ Compilation Toolchain (for Engine Development):} A modern C++17 compatible compiler (GCC 9+, Clang 10+, or MSVC 2019+) along with \textbf{CMake 3.15+} for building the standalone native analyzer executable.
+    \item \textbf{Tree-sitter Parsing Grammars:} Tree-sitter C runtime library along with pre-compiled grammars for C, C++, and JavaScript.
+    \item \textbf{Web Browser:} Any modern evergreen web browser supporting ECMAScript 2020 and CSS Grid (Google Chrome 90+, Mozilla Firefox 88+, Microsoft Edge 90+, or Apple Safari 14+).
+    \item \textbf{Development and Build Tools:} Visual Studio Code (or equivalent IDE) and Vite 5 for fast frontend hot module replacement and optimized production asset bundling.
+\end{itemize}
+
+\section{Functional and Non-Functional Requirements}
+
+\subsection{Functional Requirements}
+The functional requirements describe the specific operations and capabilities that the system must provide:
+\begin{enumerate}
+    \item \textbf{Repository Selection:} The system shall allow users to specify or select a local source code repository for analysis. It shall validate the repository path and identify supported source files before beginning the scanning process.
+    \item \textbf{Source Code Scanning:} The system shall recursively scan the selected repository and identify supported source code files. It shall collect the information required for subsequent analysis while excluding irrelevant directories and unsupported files according to the configured rules.
+    \item \textbf{Cyclomatic Complexity Analysis:} The system shall analyze supported source files to identify functions, decision points, and nesting depth. It shall calculate cyclomatic complexity and convert the extracted metrics into a normalized complexity score between 0 and 100.
+    \item \textbf{Code Duplication Detection:} The system shall identify repeated code fragments using the implemented duplication detection technique. It shall calculate the percentage of duplicated source lines and convert the result into a normalized duplication score.
+    \item \textbf{Structural Analysis:} The system shall calculate structural metrics, including lines of code and unusually long lines. These measurements shall be used to determine a normalized structural score between 0 and 100.
+    \item \textbf{Technical Debt Risk Calculation:} The system shall combine the normalized complexity, duplication, and structural scores using configurable weights. The active weights shall be normalized to account for analysis dimensions that are not implemented in the current version. The overall risk score shall remain within the range of 0 to 100.
+    \item \textbf{Risk Classification:} The system shall classify analyzed files into four risk categories based on their overall risk scores:
+    \begin{itemize}
+        \item \textbf{Low:} 0--24
+        \item \textbf{Moderate:} 25--49
+        \item \textbf{High:} 50--74
+        \item \textbf{Critical:} 75--100
+    \end{itemize}
+    These categories represent heuristic estimates of potential maintenance concerns rather than the probability of software defects.
+    \item \textbf{Results Visualization:} The system shall display analysis results through a graphical user interface. The dashboard shall present repository-level summaries, risk distributions, file-level scores, and the relative contribution of individual metrics.
+    \item \textbf{File-Level Inspection:} The system shall allow users to inspect individual files and view their complexity, duplication, structural scores, overall risk score, and relevant metric-based explanations.
+    \item \textbf{Filtering and Sorting:} The system shall provide options to filter and sort analyzed files according to risk category, risk score, file path, or other available metrics.
+    \item \textbf{Report Export:} The system should allow users to export analysis results in a structured format, such as JSON or CSV, so that results can be stored and reviewed outside the application.
+    \item \textbf{Error Handling:} The system shall handle invalid repository paths, unreadable files, unsupported source formats, parsing failures, and analyzer execution errors without terminating the entire application unnecessarily.
+\end{enumerate}
+
+\subsection{Non-Functional Requirements}
+The non-functional requirements govern the quality attributes, operational constraints, and architecture of the platform:
+\begin{enumerate}
+    \item \textbf{Performance:} The system should analyze repositories within a reasonable time based on repository size, file count, and source code complexity. File processing and metric calculation should be implemented efficiently to avoid unnecessary computational overhead.
+    \item \textbf{Accuracy and Consistency:} The system shall apply consistent metric definitions and scoring rules across analyzed files. The same source code and configuration should produce reproducible results, subject to the deterministic behavior of the implemented analysis tools.
+    \item \textbf{Usability:} The user interface shall provide clear navigation, readable tables, meaningful visualizations, and understandable explanations of risk scores. Users should be able to identify high-risk files without requiring extensive knowledge of the internal scoring implementation.
+    \item \textbf{Modularity:} The system shall separate the frontend, backend, code analysis engine, and risk-scoring logic into distinct components. This modular structure shall support testing, maintenance, and future enhancements.
+    \item \textbf{Maintainability:} The implementation shall use readable code, consistent naming conventions, reusable modules, and appropriate error handling. Scoring thresholds and weights should be configurable where practical.
+    \item \textbf{Reliability:} The system shall handle common input and processing errors gracefully. A failure involving an individual source file should not unnecessarily prevent the analysis of other readable files.
+    \item \textbf{Security:} The system shall validate repository paths, restrict file access to the intended analysis scope, and handle external process execution safely. It shall avoid unsafe shell-command construction and protect against path traversal and unintended file modification.
+    \item \textbf{Scalability:} The system architecture should permit future improvements such as incremental analysis, background scanning, persistent scan history, dependency analysis, and Git-based metrics.
+\end{enumerate}
+
+\section{Feasibility Study}
+A thorough feasibility evaluation was conducted before and during development:
+\begin{itemize}
+    \item \textbf{Technical Feasibility:} Utilizing Tree-sitter provides production-grade concrete syntax trees with exceptional fault tolerance, allowing incomplete or non-compiling source files to be parsed cleanly. Pairing a high-speed C++ engine with an Express API and a React frontend combines low-level algorithmic efficiency with rapid web development. The integration proved robust and feasible across platforms.
+    \item \textbf{Operational Feasibility:} Traditional static analysis tools often fail in practice because developers find database configuration and maintenance too cumbersome. By decoupling CodeInsight from external databases like PostgreSQL and utilizing a fast in-memory storage layer, operational friction was completely eliminated. Any developer can clone the repository, run \texttt{npm start}, and begin analyzing repositories immediately.
+    \item \textbf{Economic Feasibility:} The entire technology stack consists of open-source, permissively licensed libraries (MIT, Apache 2.0). CodeInsight incurs zero commercial licensing fees, requires no paid third-party cloud APIs, and can be hosted on minimal compute infrastructure, making it highly cost-effective for academic and commercial use.
+\end{itemize}
+
+\section{Technology Stack}
+Table \ref{tab:tech_stack} summarizes the technologies and frameworks selected to build the CodeInsight static analysis platform.
+
+\begin{table}[htbp]
+\centering
+\caption{CodeInsight Technology Stack}
+\label{tab:tech_stack}
+\vspace{0.2cm}
+\begin{tabularx}{\textwidth}{p{3.2cm}p{3.8cm}X}
+\toprule
+\textbf{Category} & \textbf{Technology / Library} & \textbf{Purpose in System} \\
+\midrule
+\textbf{Analysis Engine} & C++17, GCC / Clang / MSVC & Native high-speed scanner and AST parsing executable \\
+\textbf{Parsing Library} & Tree-sitter & Concrete syntax tree generation for C, C++, and JavaScript \\
+\textbf{Build System} & CMake 3.15+ & Cross-platform native binary compilation \\
+\textbf{Backend Runtime} & Node.js (v18+ / v24 LTS) & Orchestration server, asynchronous scan worker, REST API \\
+\textbf{Backend Framework} & Express.js 4.x & REST routing, request handling, and static asset serving \\
+\textbf{Persistence Layer} & In-Memory Store (\texttt{StorageService}) & Zero-dependency in-memory store for repos, scans, and metrics \\
+\textbf{Frontend Framework} & React 18 & Declarative component-based user interface \\
+\textbf{Frontend Tooling} & Vite 5 & Rapid development server (HMR) and optimized Rollup bundling \\
+\textbf{Data Visualization} & Recharts & Interactive technical debt distribution bar charts \\
+\textbf{UI Icons} & Lucide React & Clean, developer-oriented vector iconography \\
+\textbf{Styling} & Custom CSS Tokens & Dark theme palette, monospaced typography, severity badges \\
+\textbf{Testing Suites} & Custom Node.js Test Harness & Automated unit and integration testing across all phases \\
+\bottomrule
+\end{tabularx}
+\end{table}
+

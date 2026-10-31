@@ -1,0 +1,14 @@
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Block Diagram of the System Architecture}}{26}{figure.caption.12}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces DFD Level 0 (Context Diagram)}}{27}{figure.caption.13}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Data Flow Diagram (DFD Level 1) of the System}}{28}{figure.caption.14}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces DFD Level 2 (Decomposition of Technical Debt Scoring Process)}}{28}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Activity Diagram of the Scan and Analysis Workflow}}{30}{figure.caption.16}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Analysis Execution Time vs. Repository Lines of Code}}{42}{figure.caption.18}%
+\contentsline {figure}{\numberline {6.2}{\ignorespaces Technical Debt Severity Distribution across Analyzed Test Repository}}{45}{figure.caption.23}%
+\addvspace {10\p@ }

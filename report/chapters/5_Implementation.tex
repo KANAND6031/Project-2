@@ -1,0 +1,244 @@
+\chapter{Implementation}
+
+\section{Module Coherence and Codebase Structure}
+The implementation of CodeInsight follows a clean, decoupled design based on modularity, single-responsibility principles, and high module coherence. The codebase is organized into three primary operational subsystems: the native C++ analysis engine, the Node.js Express orchestration service, and the React/Vite developer dashboard. 
+
+By defining strict contracts between these layers—namely standard JSON IPC between the backend and native engine, and structured REST endpoints between the frontend and backend—each module can be developed and verified independently. The physical organization of the repository is depicted below:
+
+\begin{verbatim}
+CodeInsight/
+|-- analyzer/                 # C++ Standalone Analysis Engine
+|   |-- CMakeLists.txt        # CMake build configuration
+|   |-- include/              # Public headers
+|   |   |-- scanner.hpp       # Directory traversal & line counting
+|   |   |-- ast_parser.hpp    # Tree-sitter AST & complexity analysis
+|   |   |-- duplicate_detector.hpp # Token sliding-window clone hashing
+|   |   `-- risk_scorer.hpp   # Unified technical debt formula
+|   |-- src/                  # C++ implementation files
+|   |   |-- main.cpp          # CLI entry point & JSON serializer
+|   |   |-- scanner.cpp       # Lexical state machine & file filtering
+|   |   |-- ast_parser.cpp    # AST visitor & McCabe complexity
+|   |   |-- duplicate_detector.cpp # Maximal clone block expansion
+|   |   `-- risk_scorer.cpp   # Structural & composite debt scoring
+|   `-- third_party/          # Tree-sitter runtime & grammar sources
+|-- backend/                  # Node.js / Express REST Backend
+|   |-- src/
+|   |   |-- controllers/      # repositoryController.js, scanController.js
+|   |   |-- routes/           # scanRoutes.js, repositoryRoutes.js
+|   |   |-- services/         # Orchestration & analysis services
+|   |   |   |-- storageService.js    # Zero-setup in-memory persistence
+|   |   |   |-- scanQueueService.js  # Asynchronous scan task queue
+|   |   |   |-- analyzerService.js   # Native process execution & fallback
+|   |   |   |-- astEngine.js         # JavaScript Tree-sitter AST engine
+|   |   |   |-- duplicateService.js  # Token clone detection service
+|   |   |   |-- riskScorer.js        # Node.js technical debt scoring engine
+|   |   |   `-- exportService.js     # JSON, Markdown, CSV report formats
+|   |   `-- server.js         # API entry point & single-server static server
+|   `-- package.json
+|-- frontend/                 # React 18 + Vite Interactive Dashboard
+|   |-- src/
+|   |   |-- components/       # Overview.jsx, FileList.jsx, FileDetail.jsx,
+|   |   |                     # DuplicateViewer.jsx, Navbar.jsx, NewScanModal.jsx
+|   |   |-- services/         # api.js (Axios REST client)
+|   |   |-- index.css         # Dark theme design tokens & typography
+|   |   `-- App.jsx           # Root application state & scan polling
+|   `-- vite.config.js
+|-- test-fixtures/            # Controlled codebases for automated test suites
+|   |-- complex-repo/         # Multi-language test repository
+|   `-- duplication-repo/     # Controlled Type-1 clone samples
+`-- README.md
+\end{verbatim}
+
+\section{System Algorithms}
+The core operational logic of CodeInsight is driven by three primary algorithms governing source code parsing, duplicate clone identification, and technical debt risk calculation.
+
+\subsection{AST Parsing and Complexity Extraction}
+Algorithm \ref{alg:ast_parse} outlines how source code files are parsed into abstract syntax trees to extract cyclomatic complexity and nesting depths.
+
+\begin{algorithm}[htbp]
+\caption{AST Parsing and Cyclomatic Complexity Extraction}
+\label{alg:ast_parse}
+\begin{algorithmic}[1]
+\Require Source file path $F$, Language Grammar $G_L$
+\Ensure Function metric list $\mathcal{M} = \{(f_i, M_i, N_i, P_i, L_i)\}$
+\State Read raw file content $C \leftarrow \Call{ReadFile}{F}$
+\State Initialize Tree-sitter parser $P$ with grammar $G_L$
+\State Concrete Syntax Tree $T \leftarrow \Call{Parse}{P, C}$
+\State $\mathcal{M} \leftarrow \emptyset$
+\For{each node $V \in \Call{TraverseNodes}{T}$}
+    \If{$V.\text{type} \in \{\text{function\_definition}, \text{method\_definition}, \text{arrow\_function}\}$}
+        \State $M \leftarrow 1$ \Comment{Baseline sequential control flow}
+        \State $N_{\max} \leftarrow 0, \; N_{\text{curr}} \leftarrow 0$
+        \State $P \leftarrow \Call{CountFormalParameters}{V}$
+        \State $L \leftarrow V.\text{endLine} - V.\text{startLine} + 1$
+        \For{each child node $u$ in subtree rooted at $V$}
+            \If{$u.\text{type} \in \{\text{if\_statement}, \text{for\_statement}, \text{while\_statement}, \text{case\_statement}, \dots\}$}
+                \State $M \leftarrow M + 1$ \Comment{Increment decision predicate count}
+            \ElsIf{$u.\text{type} \in \{\&\&, \; ||, \; ??\}$}
+                \State $M \leftarrow M + 1$ \Comment{Short-circuit logical operator branch}
+            \EndIf
+            \If{$u$ enters new nested block}
+                \State $N_{\text{curr}} \leftarrow N_{\text{curr}} + 1$
+                \State $N_{\max} \leftarrow \max(N_{\max}, N_{\text{curr}})$
+            \ElsIf{$u$ exits nested block}
+                \State $N_{\text{curr}} \leftarrow N_{\text{curr}} - 1$
+            \EndIf
+        \EndFor
+        \State $\mathcal{M} \leftarrow \mathcal{M} \cup \{(V.\text{name}, M, N_{\max}, P, L)\}$
+    \EndIf
+\EndFor
+\State \Return $\mathcal{M}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Sliding-Window Token Hashing and Clone Detection}
+Algorithm \ref{alg:clone_detect} details the sliding-window token hashing and maximal forward expansion technique utilized to identify Type-1 duplicate code fragments across files.
+
+\begin{algorithm}[htbp]
+\caption{Sliding-Window Token Hashing and Maximal Clone Expansion}
+\label{alg:clone_detect}
+\begin{algorithmic}[1]
+\Require Analyzed file set $\mathcal{F} = \{F_1, \dots, F_m\}$, Window Size $K = 5$, Min Token Length $\tau = 30$
+\Ensure Clustered Duplicate Groups $\mathcal{G} = \{G_1, G_2, \dots\}$
+\State Initialize hash table $H: \text{HashValue} \to \text{List of } (\text{FileID}, \text{LineStart})$
+\For{each file $F \in \mathcal{F}$}
+    \State Strip comments and empty lines from $F$, recording original line numbers $\mathcal{L}$
+    \State Normalize whitespace: collapse consecutive spaces and tabs to a single space
+    \For{index $i = 1$ to $|F.\text{lines}| - K + 1$}
+        \State Block $B \leftarrow \Call{JoinLines}{F.\text{lines}[i \dots i + K - 1]}$
+        \If{$\Call{LengthWithoutWhitespace}{B} \ge \tau$}
+            \State $h \leftarrow \Call{Hash}{B}$ \Comment{Compute 64-bit rolling hash}
+            \State Append $(F.\text{id}, i)$ to $H[h]$
+        \EndIf
+    \EndFor
+\EndFor
+\State Candidate pairs $\mathcal{P} \leftarrow \emptyset$
+\For{each hash entry $h \in H$ where $|H[h]| \ge 2$}
+    \State Expand matching lines forward across paired fragments until next mismatch
+    \State Merge overlapping blocks and filter out sub-slices covered by larger blocks
+    \State Add maximal non-subsumed clone fragments to $\mathcal{P}$
+\EndFor
+\State Cluster connected pairs in $\mathcal{P}$ into disjoint duplicate groups $\mathcal{G}$
+\State \Return $\mathcal{G}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Explainable Technical Debt Scoring}
+Algorithm \ref{alg:risk_score} demonstrates the calculation of file-level composite technical debt risk scores and priority tiers.
+
+\begin{algorithm}[htbp]
+\caption{Explainable Technical Debt Scoring and Priority Triage}
+\label{alg:risk_score}
+\begin{algorithmic}[1]
+\Require File metrics ($M_{\max}, P_{\text{dup}}, \text{LOC}, N_{\max}, P_{\max}$), Weight vectors $(w_c, w_d, w_s) = (0.45, 0.35, 0.20)$
+\Ensure Risk Score $R \in [0, 100]$, Severity Tier, Priority Rating ($P1$--$P4$)
+\State $C \leftarrow \Call{MapComplexityScore}{M_{\max}}$ \Comment{Table \ref{tab:risk_thresholds}}
+\State $D \leftarrow \Call{MapDuplicationScore}{P_{\text{dup}}}$ \Comment{Table \ref{tab:risk_thresholds}}
+\State $L \leftarrow \Call{MapLengthScore}{\text{LOC}}, \; N \leftarrow \Call{MapNestingScore}{N_{\max}}, \; P \leftarrow \Call{MapParamScore}{P_{\max}}$
+\State $S \leftarrow 0.40L + 0.35N + 0.25P$ \Comment{Compute structural risk score}
+\State $R \leftarrow \min(100, \; \max(0, \; 0.45C + 0.35D + 0.20S))$
+\State $\text{Severity} \leftarrow \Call{CategorizeSeverity}{R}$ \Comment{Low, Moderate, High, Critical}
+\State $\text{ImpactMultiplier} \leftarrow (M_{\max} > 15 \text{ or } C_{\text{high}} > 0) \; ? \; 1.3 : 1.0$
+\State $\text{EffortFactor} \leftarrow \text{LOC} > 300 \; ? \; 1.5 : 1.0$
+\State $\text{PriorityScore} \leftarrow \min(100, \; (R \times \text{ImpactMultiplier}) / \text{EffortFactor})$
+\State Assign priority tier $P1, P2, P3, \text{ or } P4$ based on $R$ and $\text{PriorityScore}$
+\State \Return $(R, \text{Severity}, \text{PriorityScore})$
+\end{algorithmic}
+\end{algorithm}
+
+\section{Implementation of the Core Analysis Engine and AST Parsing}
+The core analysis engine was implemented as a high-performance C++ executable (\texttt{codeinsight-analyzer}) leveraging Tree-sitter C runtime libraries and official grammars for C, C++, and JavaScript.
+
+\subsection{Lexical Scanning and Line Counting}
+Before parsing ASTs, the engine performs lexical state-machine scanning to compute physical line metrics: total lines of code (LOC), source lines of code (SLOC), comment lines, and blank lines. A lexical state machine tracks multi-line comment delimiters (\texttt{/* ... */}) and single-line comments (\texttt{//}), ensuring that comment lines within string literals or macros are accurately classified.
+
+\subsection{Tree-sitter Grammar Integration and AST Traversal}
+The Tree-sitter parser compiles grammar definitions into fast state tables. For C and C++, the parser recognizes function declarations, constructor definitions, and member methods. For JavaScript and TypeScript, the engine traverses function declarations, function expressions, object method definitions, and ES6 arrow functions.
+
+During recursive subtree traversal, cyclomatic complexity increments by 1 whenever an AST node matches a branching decision point. In addition to standard control-flow keywords (\texttt{if}, \texttt{for}, \texttt{while}, \texttt{do}, \texttt{case}), the engine explicitly counts short-circuit boolean operators (\texttt{\&\&}, \texttt{||}, and nullish coalescing \texttt{??}) because each short-circuit creates a distinct branch in the program's control-flow graph. Maximum nesting depth is tracked by maintaining a stack of enclosing compound statement blocks.
+
+\section{Technical Debt Scoring Engine and Explainable Risk Heuristics}
+To eliminate the black-box nature of commercial code rating tools, CodeInsight computes technical debt using a transparent, explainable mathematical formulation:
+\begin{equation}
+\label{eq:unified_risk}
+\boxed{R = 0.45C + 0.35D + 0.20S}
+\end{equation}
+where the structural risk score $S$ is computed from physical length ($L$), maximum nesting depth ($N$), and maximum parameter count ($P$):
+\begin{equation}
+\label{eq:structural_risk}
+\boxed{S = 0.40L + 0.35N + 0.25P}
+\end{equation}
+
+Table \ref{tab:risk_thresholds} summarizes the empirical threshold mappings used to convert raw extracted metrics into normalized sub-scores ($0$ to $100$).
+
+\begin{table}[htbp]
+\centering
+\caption{Technical Debt Scoring Thresholds and Weight Distributions}
+\label{tab:risk_thresholds}
+\vspace{0.2cm}
+\begin{tabular}{lllc}
+\toprule
+\textbf{Metric Category} & \textbf{Raw Input Value} & \textbf{Mapped Score} & \textbf{Formula Weight} \\
+\midrule
+\textbf{Complexity ($C$)} & 0 (No functions / Config file) & 0 & 45\% \\
+& $1 - 5$ decision points & 10 & \\
+& $6 - 10$ decision points & 35 & \\
+& $11 - 15$ decision points & 65 & \\
+& $> 15$ decision points & 90 & \\
+\midrule
+\textbf{Duplication ($D$)} & 0\% duplicated lines & 0 & 35\% \\
+& $1\% - 5\%$ duplicated lines & 20 & \\
+& $6\% - 10\%$ duplicated lines & 40 & \\
+& $11\% - 20\%$ duplicated lines & 70 & \\
+& $> 20\%$ duplicated lines & 90 & \\
+\midrule
+\textbf{Structural ($S$)} & \multicolumn{2}{l}{$S = 0.40L + 0.35N + 0.25P$} & 20\% \\
+\quad \textit{Length ($L$)} & $\le 100$ LOC and func lines $\le 30$ & 10 & (40\% of $S$) \\
+& $101 - 300$ LOC or func $31 - 60$ & 35 & \\
+& $301 - 700$ LOC or func $61 - 120$ & 65 & \\
+& $> 700$ LOC or func $> 120$ & 90 & \\
+\quad \textit{Nesting ($N$)} & Max nesting depth $\le 1$ & 10 (0 if no func) & (35\% of $S$) \\
+& Max nesting depth $= 2$ & 35 & \\
+& Max nesting depth $= 3$ & 65 & \\
+& Max nesting depth $\ge 4$ & 90 & \\
+\quad \textit{Parameters ($P$)} & Max parameters $\le 2$ & 10 (0 if no func) & (25\% of $S$) \\
+& Max parameters $3 - 4$ & 35 & \\
+& Max parameters $5 - 6$ & 65 & \\
+& Max parameters $> 6$ & 90 & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Based on the calculated risk score $R$, each file is classified into a clear severity tier:
+\begin{itemize}
+    \item \textbf{Low Risk ($0 \le R < 25$):} Clean, well-structured, maintainable code.
+    \item \textbf{Moderate Risk ($25 \le R < 50$):} Moderate complexity; monitor during regular development sprints.
+    \item \textbf{High Risk ($50 \le R < 75$):} Significant technical debt; target for refactoring.
+    \item \textbf{Critical Risk ($75 \le R \le 100$):} Severe technical debt hotspot; top priority candidate for decomposition.
+\end{itemize}
+
+\section{Implementation of Exact Token Clone Detection}
+Code duplication detection is implemented using normalized sliding-window token hashing. The detector processes source files in three phases:
+\begin{enumerate}
+    \item \textbf{Token Normalization and Source Mapping:} Comments and empty lines are removed, while maintaining a bidirectional line mapping to the original source file. Internal whitespace sequences are collapsed to single spaces.
+    \item \textbf{Sliding Window Rolling Hashing:} A sliding window of size $K = 5$ lines moves across normalized lines. To eliminate false-positive duplicate clusters caused by trivial syntax (such as repeated closing braces or boilerplate declarations), blocks with fewer than $\tau = 30$ non-whitespace characters are discarded. Valid blocks are hashed using a 64-bit rolling hash.
+    \item \textbf{Maximal Clone Expansion and Subsumption Filtering:} When identical hash keys occur across multiple file locations, the algorithm expands matching lines forward line-by-line until a mismatch occurs. A subsumption filter removes shorter fragments that are completely contained within longer clone blocks, clustering the resulting fragments into unique duplicate groups.
+\end{enumerate}
+
+\section{In-Memory Storage, Asynchronous Scan Queue, and Developer Dashboard}
+
+\subsection{Zero-Setup In-Memory Persistence}
+To eliminate the installation, configuration, and maintenance overhead of external database servers such as PostgreSQL, CodeInsight uses a high-performance in-memory persistence layer implemented in \texttt{StorageService}. Repositories, scans, file snapshots, and duplicate groups are stored in optimized JavaScript \texttt{Map} structures indexed by unique identifiers. The service provides instantaneous CRUD operations ($O(1)$ lookup time) and automatically registers default test fixtures on startup.
+
+\subsection{Asynchronous Scan Queue Management}
+Repository analysis is executed asynchronously through \texttt{ScanQueueService}. When a scan request is submitted, a scan record is created with status \texttt{queued}. The queue worker transitions the job to \texttt{scanning}, invokes the analysis engine, aggregates metrics, evaluates risk scores, and marks the job as \texttt{completed}. The frontend queries the job status every 2 seconds via a lightweight status endpoint, ensuring a smooth, non-blocking user experience even on larger codebases.
+
+\subsection{Developer-Focused React Dashboard}
+The frontend interface is engineered specifically for software developers:
+\begin{itemize}
+    \item \textbf{Overview Dashboard:} Displays aggregated repository statistics (total files, lines of code, average complexity, duplicate percentage, overall risk score), an interactive Recharts risk distribution bar chart, a live formula card explaining $R = 0.45C + 0.35D + 0.20S$, and the top technical debt hotspots requiring remediation.
+    \item \textbf{Searchable File Explorer:} Features real-time substring search, multi-select filters for language and severity, multi-column sorting (by risk score, lines, or complexity), pagination, and quick-launch modal triggers.
+    \item \textbf{Granular File Inspector Modal (\texttt{FileDetail}):} Provides a comprehensive breakdown of an individual file's score, displaying exact normalized sub-points ($C, D, S, L, N, P$), human-readable risk factors, and a complete table of all functions with their cyclomatic complexity, nesting depth, and parameter counts.
+    \item \textbf{Clustered Duplicate Clone Viewer (\texttt{DuplicateViewer}):} Allows developers to inspect duplicate code clusters, filter by minimum line count, view participating file fragments, and inspect syntax-highlighted code blocks.
+\end{itemize}
+

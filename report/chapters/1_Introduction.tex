@@ -1,0 +1,69 @@
+\chapter{Introduction}
+
+\section{Introduction}
+Modern software development moves at an unprecedented pace. Development teams are constantly pushed to ship features rapidly, iterate on feedback, and release frequent updates. In this race to meet deadlines, code quality often takes a backseat to immediate functional requirements. Developers take shortcuts, write quick workarounds, copy-paste existing code snippets rather than refactoring shared utilities, and introduce nested conditional logic to handle new edge cases. Over time, these small compromises accumulate into what software engineering literature defines as \textit{technical debt}.
+
+Just like financial debt, technical debt incurs continuous interest. As a codebase degrades, simple feature requests take significantly longer to implement, routine bug fixes introduce regressions in seemingly unrelated modules, onboarding new engineers becomes frustrating, and developer morale drops. While most engineers intuitively know which parts of their codebase are messy, intuitive impressions lack quantitative rigor. Engineering managers and tech leads cannot easily prioritize refactoring work during sprint planning without clear, objective metrics that prove where the worst risks lie.
+
+To solve this problem, this project presents \textbf{CodeInsight}: an automated codebase health analysis and technical debt prioritization platform. CodeInsight provides an end-to-end static analysis pipeline that evaluates software repositories without requiring compilation or execution. It combines high-speed abstract syntax tree (AST) parsing, normalized token-based code clone detection, and an explainable technical debt risk scoring engine. By pairing a low-overhead analysis core with an interactive, developer-focused React dashboard, CodeInsight transforms raw static analysis telemetry into clear, prioritized refactoring targets.
+
+\section{Motivation}
+The inspiration behind CodeInsight came from observing the practical difficulties development teams experience when trying to maintain code quality. While working on various software projects during our computer science coursework at IIIT Manipur, we noticed a recurring pattern: as repositories grow past a few thousand lines of code, certain files quietly turn into unmaintainable monsters. Functions swell to hundreds of lines with four or five levels of nested loops and conditionals, and identical logic gets copy-pasted across multiple files because nobody wants to risk touching a shared component.
+
+When developers look for static analysis tools to address these issues, they usually encounter two extremes. On one side are lightweight linters like ESLint or Clang-Format, which catch basic syntax errors and style inconsistencies but provide no high-level architectural insight into technical debt. On the other side are heavy enterprise platforms like SonarQube, which require complex infrastructure, dedicated database installations, substantial server RAM, and lengthy continuous integration setup before a developer can inspect a single scan. 
+
+We saw a clear opportunity to build a modern developer tool that bridges this gap: a tool that is fast, completely self-contained, runs with zero external database configuration, and provides immediate, actionable feedback on where technical debt is concentrated. Our motivation is to give individual developers and small engineering teams a transparent, understandable tool that helps them keep their codebases healthy before technical debt spirals out of control.
+
+\section{Problem Statement}
+Managing software maintainability through manual code reviews or existing static analysis platforms faces several well-documented challenges:
+\begin{itemize}
+    \item \textbf{High Setup and Infrastructure Overhead:} Traditional technical debt platforms require external relational databases, container services, and administrative configuration before any analysis can run. This heavy footprint discourages adoption in small teams and local development workflows.
+    \item \textbf{Opaque and Arbitrary Metrics:} Many existing tools present overall ``maintainability ratings'' (such as letter grades A through F) without clearly showing developers how those ratings were computed. When developers cannot see the mathematical formula behind a score, they distrust the recommendations.
+    \item \textbf{Cognitive Complexity Blindness:} Simple line counts and basic style rules fail to capture the true difficulty of understanding code. A 50-line function with multiple nested loops, early returns, and branching conditions is far harder to maintain and test than a 200-line declarative configuration or lookup table.
+    \item \textbf{Proliferation of Duplicate Code (Clones):} Copy-pasting code is one of the most common ways bugs replicate across a codebase. Standard text diffing tools cannot detect clones when comments or whitespace vary slightly, while complex tree-to-tree comparison algorithms are too computationally expensive for large projects.
+    \item \textbf{Lack of Actionable Remediation Triage:} Most analysis tools dump hundreds of isolated warnings onto the developer without indicating which files pose the highest risk to the project. Without clear prioritization, engineering teams suffer from alert fatigue and end up ignoring static analysis results altogether.
+\end{itemize}
+
+\section{Objective}
+The primary objective of this project is to design, implement, and validate an automated, developer-focused static code analysis platform that accurately quantifies codebase health and prioritizes technical debt. The specific project objectives are:
+\begin{itemize}
+    \item To build a high-performance analysis engine that extracts abstract syntax trees (AST) across multiple languages (C, C++, JavaScript, TypeScript) using Tree-sitter grammars.
+    \item To implement precise code complexity metrics, including McCabe Cyclomatic Complexity ($M = 1 + D$), maximum control-flow nesting depth, and function signature parameters.
+    \item To design a fast, normalized sliding-window token hashing algorithm capable of detecting Type-1 exact code clones with maximal expansion while filtering out trivial boilerplate code.
+    \item To formulate a transparent, explainable technical debt risk scoring formula ($R = 0.45C + 0.35D + 0.20S$) that breaks down risks into complexity, duplication, and structural factors.
+    \item To implement a lightweight, zero-dependency in-memory storage layer and asynchronous scan queue that eliminates the need for external database setup.
+    \item To create a responsive, developer-first React dashboard that visualizes technical debt distribution, highlights critical hotspots, and provides granular file-level inspections.
+\end{itemize}
+
+\section{What is our Contribution?}
+In this project, I have developed CodeInsight as an integrated static analysis platform that transforms how developers inspect and prioritize code maintainability. My specific contributions include:
+\begin{enumerate}
+    \item \textbf{High-Speed AST-Based Metric Extraction:} I integrated Tree-sitter parsers into a standalone analysis core to compute exact cyclomatic complexity and nesting depth directly from syntax trees, ensuring language-accurate measurement without relying on brittle regular expressions. An integrated JavaScript engine was also built as a seamless cross-platform fallback.
+    \item \textbf{Maximal Duplicate Clone Detection Pipeline:} I designed a token normalization and sliding-window hashing mechanism that accurately groups duplicate code fragments across files, automatically expanding matching lines to find maximal clone boundaries while suppressing false positives from repeated closing braces or short boilerplate.
+    \item \textbf{Explainable Technical Debt Formulation:} Rather than using a black-box rating, I established an intuitive mathematical formulation: $R = 0.45C + 0.35D + 0.20S$, where structural debt is further decomposed into physical length, nesting depth, and parameter count ($S = 0.40L + 0.35N + 0.25P$). The platform generates explicit human-readable risk factors for every file, explaining exactly why it received its score.
+    \item \textbf{Remediation Priority Heuristic ($P1$--$P4$):} I formulated a triage heuristic that weighs risk against estimated refactoring effort, categorizing files into actionable priority tiers so teams immediately know which files require urgent attention.
+    \item \textbf{High-Density Developer Dashboard:} I built an interactive React/Vite dashboard inspired by tools like GitHub Insights and Linear, featuring real-time status polling, interactive distribution charts, sortable file tables, and deep modal inspectors for function diagnostics and clone clusters.
+\end{enumerate}
+
+\clearpage
+\section{Project Timeline}
+The project was executed over a three-month development lifecycle from February 2026 to April 2026. The milestone breakdown across the project duration is summarized in Table \ref{tab:timeline}.
+
+\begin{table}[H]
+\centering
+\caption{Project Implementation Timeline}
+\label{tab:timeline}
+\vspace{0.2cm}
+\begin{tabular}{lp{11.5cm}}
+\toprule
+\textbf{Month} & \textbf{Activities} \\
+\midrule
+\textbf{February 2026} & Foundation and Architecture. Literature review on static code analysis, AST parsing, and technical debt models. Environment setup, C++ CLI project scaffolding with CMake, Tree-sitter integration for C/C++ and JavaScript grammars, and initial file discovery scanner. \\
+\addlinespace
+\textbf{March 2026} & Core Engine Implementation. Implementing McCabe cyclomatic complexity, nesting depth calculation, and formal parameter counting. Building the sliding-window token hashing pipeline and maximal clone expansion algorithm. Developing the unified technical debt scoring formula ($R = 0.45C + 0.35D + 0.20S$) and unit testing against controlled test fixtures. \\
+\addlinespace
+\textbf{April 2026} & Integration, UI, and Final Evaluation. Designing the Express REST API and background scan queue. Building the zero-setup in-memory persistence service. Developing the interactive React/Vite frontend dashboard with Recharts visualizations. Comprehensive white-box, black-box, and edge-case testing, performance benchmarking on real-world repositories, and final report documentation. \\
+\bottomrule
+\end{tabular}
+\end{table}
+

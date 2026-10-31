@@ -1,0 +1,48 @@
+\chapter{Literature Survey}
+
+\section{Existing Systems and Methodologies}
+Static program analysis has been a foundational pillar of software engineering for over four decades. The primary objective of static analysis is to evaluate computer software without executing the programs, enabling the identification of design flaws, security vulnerabilities, coding standard violations, and structural degradation early in the software development lifecycle.
+
+Early approaches to automated code evaluation relied heavily on lexical analysis and regular expressions. Tools such as Unix \texttt{grep}, \texttt{lint} for C programs introduced by Johnson in 1978, and traditional style checkers scanned source code as raw streams of characters. While effective for simple pattern matching—such as identifying prohibited variable names or missing semicolons—lexical analysis suffers from severe semantic blindness. It cannot reliably distinguish between a variable declaration, a function invocation, or an occurrence within a commented block or string literal.
+
+To overcome the limitations of lexical pattern matching, compiler frontends began providing access to compiler intermediate representations and Abstract Syntax Trees (ASTs). Modern compilers like Clang and GCC expose programmatic APIs (such as Clang LibTooling and Clang-Tidy) that allow developers to write custom AST matchers and diagnostic rules. Similarly, in the interpreted and dynamic language domain, JavaScript-focused linters like JSHint and later ESLint popularized modular, pluggable rule systems operating on standard abstract syntax formats like the ESTree specification.
+
+In the commercial and enterprise domain, comprehensive software quality platforms emerged, most notably SonarQube (developed by SonarSource). SonarQube aggregates multi-language analysis, test coverage tracking, rule compliance, and high-level maintainability ratings into centralized web dashboards. Similarly, tools like Code Climate and Coverity established continuous inspection pipelines integrated into modern code hosting environments. These platforms shifted the industry perspective from isolated compiler warnings to holistic codebase health monitoring.
+
+\section{Study of Modern Static Analysis Frameworks and AST Parsers}
+The accuracy and responsiveness of any static analysis system depend fundamentally on how it parses and represents source code. In recent years, significant advancements in formal parsing theory and compiler construction have reshaped static analysis architectures.
+
+\subsection{Tree-sitter and Concrete Syntax Trees}
+A major breakthrough in practical code analysis was the development of \textbf{Tree-sitter}, an incremental parsing library originally designed by Max Brunsfeld for text editors and developer tools. Unlike traditional compiler generators (such as Yacc, Bison, or ANTLR) that require complete, syntactically flawless source code and often produce high memory overhead, Tree-sitter is built on generalized LR (GLR) parsing algorithms. It generates a concrete syntax tree (CST) that preserves every token in the original file, including whitespace, comments, and punctuation, while being exceptionally resilient to syntax errors. 
+
+Tree-sitter provides unified C-language bindings and pre-compiled grammars for dozens of programming languages. Because it builds the parse tree in a single fast pass directly into memory, it can parse thousands of lines of code in a few milliseconds. In the context of multi-language static analysis, Tree-sitter allows an analysis engine to navigate source structures across C, C++, JavaScript, TypeScript, and Python through a consistent, high-speed procedural API without needing to install individual language compiler toolchains.
+
+\subsection{Code Clone Detection Paradigms}
+Code duplication—frequently referred to in software engineering research as \textit{code clones}—is recognized as one of the most detrimental contributors to technical debt. Roy, Cordy, and Koschke have established a widely accepted taxonomy that categorizes code clones into four primary classes:
+\begin{enumerate}
+    \item \textbf{Type-1 (Exact Clones):} Identical source code fragments except for minor variations in formatting, indentation, and comments.
+    \item \textbf{Type-2 (Parameterized / Renamed Clones):} Syntactically identical fragments where identifiers, variable names, type names, and literal values have been altered.
+    \item \textbf{Type-3 (Near-Miss Clones):} Copied fragments with added, deleted, or reordered statements.
+    \item \textbf{Type-4 (Semantic Clones):} Computationally and semantically equivalent code blocks that perform the identical functional logic but utilize entirely different syntactic constructs and algorithms.
+\end{enumerate}
+
+Extensive empirical evaluations, such as the landmark tool comparison study conducted by Bellon et al., demonstrated that while AST-based and graph-based clone detectors (such as CloneDR) can identify complex Type-3 and Type-4 clones, they suffer from high algorithmic complexity ($O(N^2)$ or worse) and significant memory footprints. In contrast, token-based and line-based sliding-window approaches (such as CCFinder by Kamiya et al.) achieve remarkable computational efficiency, making them capable of scanning large-scale production codebases within seconds while maintaining near-perfect precision for Type-1 and normalized clones.
+
+\section{Limitations of Existing Systems}
+Despite the widespread availability of static analysis tools, development teams frequently struggle to integrate them effectively into their daily engineering routines. Our review of existing systems identified several critical limitations:
+\begin{itemize}
+    \item \textbf{Heavy Infrastructure and Database Dependency:} Enterprise platforms such as SonarQube require dedicated relational databases (e.g., PostgreSQL, Oracle), containerization runtimes, and substantial background server processes. For individual developers, open-source maintainers, or small development teams seeking quick feedback on a local project, setting up and maintaining this infrastructure represents an unnecessary barrier to entry.
+    \item \textbf{Black-Box Scoring and Arbitrary Metrics:} Many commercial tools assign arbitrary quality grades (such as ``Maintainability Rating A'' or ``Technical Debt: 3 days'') based on proprietary internal formulas. When developers cannot trace how a specific number or letter grade was calculated, they view the tool with skepticism and struggle to justify refactoring tasks to engineering leadership.
+    \item \textbf{Information Overload and Alert Fatigue:} Traditional linters report thousands of individual stylistic infractions—ranging from trailing whitespace to arbitrary naming conventions—without weighting them by their structural risk. Developers become overwhelmed by noisy warning lists and frequently end up disabling the tool altogether.
+    \item \textbf{Language Fragmentation:} Developers working in multi-language or full-stack environments (for example, combining C++ native modules with JavaScript/TypeScript services) are typically forced to configure multiple disjoint static analysis tools, each with its own output format, configuration file, and reporting structure.
+\end{itemize}
+
+\section{Summary of Identified Research Gaps}
+Our comprehensive literature survey reveals a distinct research and tooling gap between lightweight, shallow linters and heavyweight enterprise platforms. Specifically:
+\begin{enumerate}
+    \item There is a strong need for an \textbf{independent, zero-setup static analysis engine} that operates with self-contained in-memory persistence, allowing instantaneous repository scans without external database dependencies.
+    \item There is a demand for a \textbf{transparent and mathematically explainable technical debt model} that integrates cyclomatic complexity, code duplication, and structural nesting into a clear, weighted formulation ($R = 0.45C + 0.35D + 0.20S$) accompanied by explicit human-readable risk factors.
+    \item There is a lack of developer tools that combine \textbf{fast AST-level function diagnostics} with \textbf{clustered clone visualization} within a high-density, interactive user interface designed specifically for software engineers.
+\end{enumerate}
+By directly addressing these shortcomings, the CodeInsight platform was designed and built to provide a fast, accessible, and mathematically rigorous solution for codebase health monitoring.
+
