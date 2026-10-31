@@ -29,7 +29,7 @@
 \contentsline {section}{\numberline {3.6}Technology Stack}{23}{section.3.6}%
 \contentsline {chapter}{\numberline {4}System Design}{25}{chapter.4}%
 \contentsline {section}{\numberline {4.1}System Architecture}{25}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Data Flow Diagram (DFD)}{27}{section.4.2}%
+\contentsline {section}{\numberline {4.2}Data Flow Diagram (DFD)}{26}{section.4.2}%
 \contentsline {subsection}{\numberline {4.2.1}DFD Level 0 (Context Diagram)}{27}{subsection.4.2.1}%
 \contentsline {subsection}{\numberline {4.2.2}DFD Level 1}{27}{subsection.4.2.2}%
 \contentsline {subsection}{\numberline {4.2.3}DFD Level 2 (Inference / Debt Scoring Process Decomposition)}{28}{subsection.4.2.3}%

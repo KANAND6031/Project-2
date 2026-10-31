@@ -10,7 +10,7 @@ It pairs a high-performance **C++ analysis engine** with a **Node.js/Express RES
 
 ```text
 ┌─────────────────────────┐
-│     React Frontend      │  (Interactive Dashboard, Metrics, Clone Viewer)
+│     React Frontend      │  (Interactive Dashboard Metrics, Clone Viewer)
 └───────────┬─────────────┘
             │ HTTP / REST
 ┌───────────▼─────────────┐

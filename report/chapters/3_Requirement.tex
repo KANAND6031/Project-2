@@ -82,22 +82,31 @@ Table \ref{tab:tech_stack} summarizes the technologies and frameworks selected t
 \centering
 \caption{CodeInsight Technology Stack}
 \label{tab:tech_stack}
-\vspace{0.2cm}
-\begin{tabularx}{\textwidth}{p{3.2cm}p{3.8cm}X}
+\vspace{0.3cm}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.55cm}>{\raggedright\arraybackslash}p{5.05cm}>{\raggedright\arraybackslash}X}
 \toprule
 \textbf{Category} & \textbf{Technology / Library} & \textbf{Purpose in System} \\
 \midrule
 \textbf{Analysis Engine} & C++17, GCC / Clang / MSVC & Native high-speed scanner and AST parsing executable \\
+\addlinespace[0.25cm]
 \textbf{Parsing Library} & Tree-sitter & Concrete syntax tree generation for C, C++, and JavaScript \\
+\addlinespace[0.25cm]
 \textbf{Build System} & CMake 3.15+ & Cross-platform native binary compilation \\
+\addlinespace[0.25cm]
 \textbf{Backend Runtime} & Node.js (v18+ / v24 LTS) & Orchestration server, asynchronous scan worker, REST API \\
+\addlinespace[0.25cm]
 \textbf{Backend Framework} & Express.js 4.x & REST routing, request handling, and static asset serving \\
+\addlinespace[0.25cm]
 \textbf{Persistence Layer} & In-Memory Store (\texttt{StorageService}) & Zero-dependency in-memory store for repos, scans, and metrics \\
+\addlinespace[0.25cm]
 \textbf{Frontend Framework} & React 18 & Declarative component-based user interface \\
+\addlinespace[0.25cm]
 \textbf{Frontend Tooling} & Vite 5 & Rapid development server (HMR) and optimized Rollup bundling \\
+\addlinespace[0.25cm]
 \textbf{Data Visualization} & Recharts & Interactive technical debt distribution bar charts \\
-\textbf{UI Icons} & Lucide React & Clean, developer-oriented vector iconography \\
+\addlinespace[0.25cm]
 \textbf{Styling} & Custom CSS Tokens & Dark theme palette, monospaced typography, severity badges \\
+\addlinespace[0.25cm]
 \textbf{Testing Suites} & Custom Node.js Test Harness & Automated unit and integration testing across all phases \\
 \bottomrule
 \end{tabularx}
