@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  1 NOV 2026 12:03
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  1 NOV 2026 12:46
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1565,68 +1565,9 @@ Underfull \hbox (badness 10000) in alignment at lines 117--117
 [][][][][] 
  []
 
+[43] [44
 
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Evaluation Fea-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 CodeInsight
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/m/n/10 JavaScript /
- []
-
-
-Underfull \hbox (badness 1365) in paragraph at lines 151--151
-[]|\T1/fnc/m/n/10 Multi (C, C++, JS,
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Database De-pen-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/m/n/10 Heavy (Post-
- []
-
-
-Underfull \hbox (badness 1509) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 None (In-Memory
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Startup Setup
- []
-
-
-Underfull \hbox (badness 3168) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Instant ($\FMS/fncm/m/n/10 Ç \T1/fnc/m/n/10 5$ \T1/fnc/b/n/10
- sec-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Scoring Ex-plain-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Formula ($\FML/fncmi/m/it/10 R \FMS/fncm/m/n/10 Å
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
-[]|\T1/fnc/b/n/10 Interactive Dash-
- []
-
-[43] [44]) (chapters/7_Conclusion.tex [45
+]) (chapters/7_Conclusion.tex [45
 
 ]
 Chapter 7.
@@ -1676,38 +1617,37 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 46485742B3890D3D413352A6B2175D7F;13730.
+(rerunfilecheck)             Checksum: 19C4D127F8FEFF8F6F13F4A1FC460702;13553.
  ) 
 Here is how much of TeX's memory you used:
- 28567 strings out of 467871
- 529423 string characters out of 5418377
- 977457 words of memory out of 5000000
- 56702 multiletter control sequences out of 15000+600000
- 722833 words of font info for 177 fonts, out of 8000000 for 9000
+ 28562 strings out of 467871
+ 529346 string characters out of 5418377
+ 977364 words of memory out of 5000000
+ 56699 multiletter control sequences out of 15000+600000
+ 722520 words of font info for 176 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,13n,94p,1003b,906s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ecss
 1095.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi60
-0\ectt1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
-/dpi600\ecsx1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
-pen/ec/dpi450\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour
-/jknappen/ec/dpi600\ecsx0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/
-ljfour/jknappen/ec/dpi600\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fon
-ts/pk/ljfour/jknappen/ec/dpi600\ecss1000.pk> <C:\Users\krish\AppData\Local\MiKT
-eX\fonts/pk/ljfour/jknappen/ec/dpi600\ecsx1095.pk> <C:\Users\krish\AppData\Loca
-l\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk><C:/Users/krish/AppData
-/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-mcl.pfb><C:/Users/kri
-sh/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-ml.pfb><C:/
-Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-ml
-it.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier
-/fourier-ms.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/n
-cntrsbk/uncb8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/ur
-w/ncntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1
-/urw/ncntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/ty
-pe1/urw/ncntrsbk/uncri8a.pfb>
-Output written on main.pdf (52 pages, 400082 bytes).
+0\ecsx1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec
+/dpi450\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour/jknap
+pen/ec/dpi600\ecsx0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/ljfour
+/jknappen/ec/dpi600\ecss0800.pk> <C:\Users\krish\AppData\Local\MiKTeX\fonts/pk/
+ljfour/jknappen/ec/dpi600\ecss1000.pk> <C:\Users\krish\AppData\Local\MiKTeX\fon
+ts/pk/ljfour/jknappen/ec/dpi600\ecsx1095.pk> <C:\Users\krish\AppData\Local\MiKT
+eX\fonts/pk/ljfour/jknappen/ec/dpi600\ectt1200.pk><C:/Users/krish/AppData/Local
+/Programs/MiKTeX/fonts/type1/public/fourier/fourier-mcl.pfb><C:/Users/krish/App
+Data/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-ml.pfb><C:/Users/
+krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fourier-mlit.pfb
+><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/public/fourier/fouri
+er-ms.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ncntrsb
+k/uncb8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ncnt
+rsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/n
+cntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/ur
+w/ncntrsbk/uncri8a.pfb>
+Output written on main.pdf (52 pages, 394366 bytes).
 PDF statistics:
- 1172 PDF objects out of 1200 (max. 8388607)
- 209 named destinations out of 1000 (max. 500000)
- 19018 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 1146 PDF objects out of 1200 (max. 8388607)
+ 208 named destinations out of 1000 (max. 500000)
+ 18506 words of extra memory for PDF output out of 20736 (max. 10000000)
 

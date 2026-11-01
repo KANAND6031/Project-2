@@ -44,7 +44,7 @@ To systematically validate each operational phase, a dedicated test harness was 
 \end{enumerate}
 
 \section{Runtime Performance and Throughput Benchmarking}
-To quantify runtime efficiency, CodeInsight was benchmarked across repositories of varying sizes, ranging from small modular utilities to multi-thousand line production packages. Benchmarks were conducted on a standard development machine (Intel Core i7-12700H, 16~GB RAM, Windows 11).
+To quantify runtime efficiency, CodeInsight was benchmarked across repositories of varying sizes, ranging from small modular utilities to multi-thousand line production packages. Benchmarks were conducted on a standard development machine (AMD Ryzen 7 250, 16~GB RAM, Windows 11).
 
 The empirical benchmarks confirm that CodeInsight scales near-linearly with repository size. For codebases under 25,000 LOC, the analysis completes in less than 500 milliseconds. Even at 100,000 LOC, total execution time remains under 2.1 seconds, achieving an average parsing and clone detection throughput of approximately \textbf{48,500 lines per second}.
 
@@ -55,8 +55,8 @@ Table \ref{tab:benchmarks} summarizes detailed runtime benchmarks and memory con
 \footnotesize
 \caption{Runtime Performance and Throughput Benchmarking}
 \label{tab:benchmarks}
-\vspace{0.2cm}
-\renewcommand{\arraystretch}{1.4}
+\vspace{0.15cm}
+\renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{@{}p{5.2cm}rrrr@{}}
 \toprule
 \textbf{Repository Scope} & \textbf{Total LOC} & \textbf{File Count} & \textbf{Execution Time} & \textbf{Peak Memory} \\
@@ -79,8 +79,8 @@ To evaluate the precision of the Tree-sitter AST complexity calculations, the en
 \small
 \caption{Complexity and Nesting Depth Metrics on Test Fixture Suite}
 \label{tab:complexity_results}
-\vspace{0.2cm}
-\renewcommand{\arraystretch}{1.25}
+\vspace{0.15cm}
+\renewcommand{\arraystretch}{1.15}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X c c c c}
 \toprule
 \textbf{Function / Component Under Test} & \textbf{Expected $M$} & \textbf{Extracted $M$} & \textbf{Max Nesting ($N$)} & \textbf{Parameters} \\
@@ -94,7 +94,7 @@ legacyParser() (Nested loops, 7 branches) & 11 & 11 & 4 & 5 \\
 \end{tabularx}
 \end{table}
 
-As shown in Table \ref{tab:complexity_results}, the extracted cyclomatic complexity matched theoretical control-flow graph definitions with \textbf{100\% fidelity}. The inclusion of short-circuit operators proved critical, accurately reflecting the true decision paths traversed during execution.
+As shown in Table \ref{tab:complexity_results}, the extracted cyclomatic complexity matched theoretical definitions with \textbf{100\% fidelity} across all test fixtures. The engine correctly resolved base complexities ($M = 1, 2$) for linear branches, while accurately capturing boolean short-circuits and multi-branch loops. Additionally, maximum nesting depths ($N$) and parameter counts were extracted with complete precision, confirming that the AST pipeline reliably quantifies both decision density and cognitive structural load.
 
 \section{Duplicate Code Detection Performance}
 The sliding-window token hashing algorithm was verified on \texttt{duplication-repo/}, which contains deliberately placed Type-1 clones across multiple files. Table \ref{tab:clone_results} details the detection results.
@@ -104,54 +104,22 @@ The sliding-window token hashing algorithm was verified on \texttt{duplication-r
 \footnotesize
 \caption{Duplicate Clone Detection Verification on Controlled Clones}
 \label{tab:clone_results}
-\vspace{0.2cm}
-\renewcommand{\arraystretch}{1.4}
+\vspace{0.15cm}
+\renewcommand{\arraystretch}{1.2}
 \begin{tabularx}{\textwidth}{@{}lp{4.2cm}ccc@{}}
 \toprule
 \textbf{Clone Group} & \textbf{Participating Files} & \textbf{Duplicate Lines} & \textbf{Token Length} & \textbf{Status} \\
 \midrule
-DUP-001        & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 20 lines              & 142 tokens & \textbf{Detected}   \\
-DUP-002        & \texttt{file\_c.js}, \texttt{file\_d.js}   & 18 lines              & 118 tokens & \textbf{Detected}   \\
-Trivial Braces & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 5 lines ($<30$ chars) & 12 tokens  & \textbf{Suppressed} \\
+DUP-001        & file\_a.cpp, file\_b.cpp & 20 lines              & 142 tokens & \textbf{Detected}   \\
+DUP-002        & file\_c.js, file\_d.js   & 18 lines              & 118 tokens & \textbf{Detected}   \\
+Trivial Braces & file\_a.cpp, file\_b.cpp & 5 lines ($<30$ chars) & 12 tokens  & \textbf{Suppressed} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The clone detector achieved 100\% recall on the ground-truth clone groups while correctly filtering out the trivial closing braces, preventing noisy false alarms.
+Table \ref{tab:clone_results} demonstrates the precision and noise-filtering capabilities of the sliding-window token hashing algorithm across multi-language source files. For substantive code duplications, the engine successfully identified both evaluated Type-1 clone clusters: DUP-001 (a 20-line, 142-token duplicated block across C++ source files) and DUP-002 (an 18-line, 118-token duplicated block across JavaScript modules). In both cases, the 5-line sliding-window seed ($K = 5$) triggered exact rolling hash matches, which the maximal expansion algorithm subsequently grew line-by-line to recover the full duplicate fragment without manual intervention.
 
-\section{Comparative Analysis with Existing Tools}
-To evaluate the distinct advantages of CodeInsight, we compared its architectural properties, setup complexity, and reporting capabilities against standard industry tools: SonarQube~\cite{sonarqube}, ESLint~\cite{eslint}, and Clang-Tidy~\cite{clangtidy}. The comparative analysis is summarized in Table \ref{tab:comparison}.
-
-\begin{table}[htbp]
-\centering
-\footnotesize
-\caption{Comparative Analysis with Existing Static Analysis Solutions}
-\label{tab:comparison}
-\vspace{0.2cm}
-\begin{tabularx}{\textwidth}{p{3.2cm}p{2.6cm}p{2.2cm}p{2.2cm}X}
-\toprule
-\textbf{Evaluation Feature} & \textbf{SonarQube} & \textbf{ESLint} & \textbf{Clang-Tidy} & \textbf{CodeInsight (Ours)} \\
-\midrule
-\textbf{Target Languages} & Multi-language & JavaScript / TS & C / C++ & Multi (C, C++, JS, TS) \\
-\addlinespace
-\textbf{Database Dependency} & Heavy (PostgreSQL, Oracle) & None & None & \textbf{None (In-Memory Store)} \\
-\addlinespace
-\textbf{Startup Setup Time} & $> 15$ minutes & $< 1$ minute & $< 1$ minute & \textbf{Instant ($< 5$ seconds)} \\
-\addlinespace
-\textbf{Memory Footprint} & $2 - 4$~GB & $\sim 100$~MB & $\sim 80$~MB & \textbf{$< 120$~MB} \\
-\addlinespace
-\textbf{Scoring Explainability} & Black-box rating (A--F) & No debt score & No debt score & \textbf{Formula ($R = 0.45C + \dots$)} \\
-\addlinespace
-\textbf{Clone Detection} & Token-based & Not supported & Not supported & \textbf{Integrated Type-1 Clones} \\
-\addlinespace
-\textbf{Interactive Dashboard} & Heavy Server UI & Terminal only & Terminal only & \textbf{React / Vite Developer UI} \\
-\addlinespace
-\textbf{Triage Priority} & Generic severity & Rule severity & Rule severity & \textbf{Remediation ($P1 - P4$)} \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-As highlighted in Table \ref{tab:comparison}, while SonarQube~\cite{sonarqube} provides comprehensive enterprise features, its dependence on external databases and high memory overhead makes it cumbersome for rapid local feedback. Conversely, linters like ESLint~\cite{eslint} and Clang-Tidy~\cite{clangtidy} are fast but lack high-level architectural debt scoring and clone detection. CodeInsight successfully bridges this gap, delivering enterprise-level structural insights with the lightweight immediacy of modern developer tooling.
+Crucially, the evaluation verified the efficacy of the boilerplate suppression heuristic. When encountering syntactically identical but semantically trivial code sequences (such as consecutive closing braces totaling 5 lines but comprising only 12 tokens), the cumulative non-whitespace character length fell below the minimum length threshold ($\tau = 30$ characters). Consequently, the detector correctly suppressed these matches from entering the candidate clone pool. This dual capability ensures 100\% recall on genuine copy-paste duplication while eliminating spurious false positives, maintaining a high signal-to-noise ratio for engineering teams.
 
 \clearpage
 \section{Hotspot Detection and Severity Distribution}
@@ -159,11 +127,11 @@ Figure \ref{fig:sev_dist} shows the technical debt severity distribution observe
 
 \begin{figure}[htbp]
 \centering
-\begin{tikzpicture}
+\begin{tikzpicture}[y=0.72cm]
 \begin{scope}[font=\small\sffamily]
     % Axes
     \draw[->, thick, color=black!70] (0, 0) -- (9.0, 0) node[right] {Severity Category};
-    \draw[->, thick, color=black!70] (0, 0) -- (0, 4.6) node[above] {File Count};
+    \draw[->, thick, color=black!70] (0, 0) -- (0, 4.5) node[above] {File Count};
     
     % Y grid
     \foreach \y/\val in {1.0/30, 2.0/60, 3.0/90, 4.0/120} {
@@ -198,4 +166,14 @@ Figure \ref{fig:sev_dist} shows the technical debt severity distribution observe
 \end{figure}
 
 The distribution demonstrates the Pareto principle typical in real-world software engineering: the vast majority of source files (114 out of 131, or 87.0\%) remain in the clean, low-risk tier ($0 - 24$), while moderate technical debt is identified across 17 files ($25 - 49$) and zero files escalate to high or critical risk tiers. By isolating these moderate-risk files and assigning them appropriate remediation ratings, CodeInsight enables engineering leads to focus refactoring resources precisely where they deliver the highest impact without generating alert fatigue.
+
+\clearpage
+\section{Summary}
+This chapter presented the testing methodology and evaluation of the CodeInsight platform. The testing approach covered the major stages of the system, including repository scanning, static code analysis, complexity calculation, code duplication detection, structural scoring, and technical debt risk assessment. Unit testing, integration testing, system testing, and edge-case testing were considered to evaluate the correctness and reliability of the individual modules and their interaction.
+
+The evaluation focused on verifying the consistency of extracted code metrics, the calculation of normalized component scores, and the classification of source files into different risk categories. Performance evaluation was also considered to understand how execution time and memory consumption vary with repository size. The dashboard's risk distribution provides a visual overview of files that may require further inspection.
+
+The results obtained from controlled test cases help assess whether the implemented analysis pipeline behaves according to its defined scoring rules. The effectiveness of the system therefore depends on the accuracy of the extracted metrics, the selected scoring thresholds, and the quality of the test data.
+
+Overall, this chapter establishes the testing approach used to evaluate CodeInsight and identifies the importance of consistent metric extraction, reliable risk calculation, and transparent reporting. Further validation using larger repositories and real-world maintenance data would help refine the scoring model and improve confidence in its practical usefulness.
 

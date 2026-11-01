@@ -59,8 +59,8 @@
 \contentsline {section}{\numberline {6.4}Runtime Performance and Throughput Benchmarking}{41}{section.6.4}%
 \contentsline {section}{\numberline {6.5}Complexity and Risk Metric Evaluation}{42}{section.6.5}%
 \contentsline {section}{\numberline {6.6}Duplicate Code Detection Performance}{43}{section.6.6}%
-\contentsline {section}{\numberline {6.7}Comparative Analysis with Existing Tools}{43}{section.6.7}%
-\contentsline {section}{\numberline {6.8}Hotspot Detection and Severity Distribution}{45}{section.6.8}%
+\contentsline {section}{\numberline {6.7}Hotspot Detection and Severity Distribution}{44}{section.6.7}%
+\contentsline {section}{\numberline {6.8}Summary}{45}{section.6.8}%
 \contentsline {chapter}{\numberline {7}Conclusion and Future Scope}{46}{chapter.7}%
 \contentsline {section}{\numberline {7.1}Summary}{46}{section.7.1}%
 \contentsline {section}{\numberline {7.2}Proposed System Review}{46}{section.7.2}%
@@ -68,4 +68,4 @@
 \contentsline {section}{\numberline {7.4}System Advantages}{47}{section.7.4}%
 \contentsline {section}{\numberline {7.5}System Limitations}{48}{section.7.5}%
 \contentsline {section}{\numberline {7.6}Future Direction}{49}{section.7.6}%
-\contentsline {chapter}{Bibliography}{50}{chapter*.23}%
+\contentsline {chapter}{Bibliography}{50}{chapter*.22}%
