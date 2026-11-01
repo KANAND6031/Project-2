@@ -120,7 +120,7 @@ Trivial Braces & \texttt{file\_a.cpp}, \texttt{file\_b.cpp} & 5 lines ($<30$ cha
 The clone detector achieved 100\% recall on the ground-truth clone groups while correctly filtering out the trivial closing braces, preventing noisy false alarms.
 
 \section{Comparative Analysis with Existing Tools}
-To evaluate the distinct advantages of CodeInsight, we compared its architectural properties, setup complexity, and reporting capabilities against standard industry tools: SonarQube, ESLint, and Clang-Tidy. The comparative analysis is summarized in Table \ref{tab:comparison}.
+To evaluate the distinct advantages of CodeInsight, we compared its architectural properties, setup complexity, and reporting capabilities against standard industry tools: SonarQube~\cite{sonarqube}, ESLint~\cite{eslint}, and Clang-Tidy~\cite{clangtidy}. The comparative analysis is summarized in Table \ref{tab:comparison}.
 
 \begin{table}[htbp]
 \centering
@@ -151,7 +151,7 @@ To evaluate the distinct advantages of CodeInsight, we compared its architectura
 \end{tabularx}
 \end{table}
 
-As highlighted in Table \ref{tab:comparison}, while SonarQube provides comprehensive enterprise features, its dependence on external databases and high memory overhead makes it cumbersome for rapid local feedback. Conversely, linters like ESLint and Clang-Tidy are fast but lack high-level architectural debt scoring and clone detection. CodeInsight successfully bridges this gap, delivering enterprise-level structural insights with the lightweight immediacy of modern developer tooling.
+As highlighted in Table \ref{tab:comparison}, while SonarQube~\cite{sonarqube} provides comprehensive enterprise features, its dependence on external databases and high memory overhead makes it cumbersome for rapid local feedback. Conversely, linters like ESLint~\cite{eslint} and Clang-Tidy~\cite{clangtidy} are fast but lack high-level architectural debt scoring and clone detection. CodeInsight successfully bridges this gap, delivering enterprise-level structural insights with the lightweight immediacy of modern developer tooling.
 
 \clearpage
 \section{Hotspot Detection and Severity Distribution}

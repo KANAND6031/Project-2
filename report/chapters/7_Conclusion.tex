@@ -10,7 +10,7 @@ As software systems grow in complexity, managing technical debt becomes essentia
 
 CodeInsight addresses this challenge by establishing an end-to-end static analysis pipeline built entirely on lightweight, open-source technologies:
 \begin{enumerate}
-    \item Concrete syntax tree parsing via Tree-sitter enables language-accurate calculation of McCabe cyclomatic complexity, maximum nesting depth, and function lengths across C, C++, and JavaScript without requiring compilation toolchains.
+    \item Concrete syntax tree parsing via Tree-sitter~\cite{treesitter} enables language-accurate calculation of McCabe cyclomatic complexity~\cite{mccabe1976}, maximum nesting depth, and function lengths across C, C++, and JavaScript without requiring compilation toolchains.
     \item A normalized sliding-window token hashing algorithm uncovers multi-file Type-1 duplicate code blocks, performing maximal forward expansion while suppressing false positives from trivial boilerplate syntax.
     \item An explainable mathematical formulation breaks down technical debt into weighted complexity (45\%), duplication (35\%), and structural size factors (20\%), accompanied by explicit human-readable reasons for every assigned score.
     \item An in-memory data store eliminates external database configuration, allowing any engineer to run full codebase evaluations with a single command.
@@ -53,6 +53,6 @@ Building upon the solid foundation established in this project, several promisin
     \item \textbf{Advanced Clone Detection (Type-2 and Type-3):} Incorporating token abstraction (normalizing variable names to generic symbols) and subtree hashing to detect renamed and near-miss code clones.
     \item \textbf{Git Integration and Historical Debt Tracking:} Integrating libgit2 or native Git CLI bindings to track how technical debt evolves across commit history, identifying chronic debt hot spots and regression trends over time.
     \item \textbf{CI/CD and Git Hook Integrations:} Packaging the standalone C++ analyzer as a lightweight GitHub Action and pre-commit hook that fails pull requests when newly introduced functions exceed complexity thresholds.
-    \item \textbf{Automated Refactoring Recommendations:} Leveraging rule-based AST transformations to suggest automated code cleanups, such as extracting long methods into subroutines or replacing arrow anti-pattern conditionals with guard clauses.
+    \item \textbf{Automated Refactoring Recommendations:} Leveraging rule-based AST transformations to suggest automated code cleanups~\cite{fowler1999}, such as extracting long methods into subroutines or replacing arrow anti-pattern conditionals with guard clauses.
 \end{itemize}
 

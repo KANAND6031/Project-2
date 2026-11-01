@@ -14,7 +14,7 @@ The current implementation focuses on repository scanning, static code analysis,
 The core operational logic of CodeInsight is driven by three primary algorithms governing source code parsing, duplicate clone identification, and technical debt risk calculation.
 
 \subsection{AST Parsing and Complexity Extraction}
-Algorithm \ref{alg:ast_parse} outlines how source code files are parsed into abstract syntax trees to extract cyclomatic complexity and nesting depths.
+Algorithm \ref{alg:ast_parse} outlines how source code files are parsed into abstract syntax trees to extract cyclomatic complexity~\cite{mccabe1976} and nesting depths.
 
 \begin{algorithm}[H]
 \caption{AST Parsing and Cyclomatic Complexity Extraction}
@@ -113,7 +113,7 @@ Algorithm \ref{alg:risk_score} demonstrates the calculation of file-level compos
 \end{algorithm}
 
 \section{Implementation of the Core Analysis Engine and AST Parsing}
-The core analysis engine was implemented as a high-performance C++ executable (\texttt{codeinsight-analyzer}) leveraging Tree-sitter C runtime libraries and official grammars for C, C++, and JavaScript.
+The core analysis engine was implemented as a high-performance C++ executable (\texttt{codeinsight-analyzer}) leveraging Tree-sitter C runtime libraries~\cite{treesitter} and official grammars for C, C++, and JavaScript.
 
 \subsection{Lexical Scanning and Line Counting}
 Before parsing ASTs, the engine performs lexical state-machine scanning to compute physical line metrics: total lines of code (LOC), source lines of code (SLOC), comment lines, and blank lines. A lexical state machine tracks multi-line comment delimiters (\texttt{/* ... */}) and single-line comments (\texttt{//}), ensuring that comment lines within string literals or macros are accurately classified.
@@ -200,7 +200,7 @@ To eliminate the installation, configuration, and maintenance overhead of extern
 Repository analysis is executed asynchronously through \texttt{ScanQueueService}. When a scan request is submitted, a scan record is created with status \texttt{queued}. The queue worker transitions the job to \texttt{scanning}, invokes the analysis engine, aggregates metrics, evaluates risk scores, and marks the job as \texttt{completed}. The frontend queries the job status every 2 seconds via a lightweight status endpoint, ensuring a smooth, non-blocking user experience even on larger codebases.
 
 \subsection{Developer-Focused React Dashboard}
-The frontend interface is engineered specifically for software developers:
+The frontend interface is engineered specifically for software developers using React and Vite~\cite{vite}:
 \begin{itemize}
     \item \textbf{Overview Dashboard:} Displays aggregated repository statistics (total files, lines of code, average complexity, duplicate percentage, overall risk score), an interactive Recharts risk distribution bar chart, a live formula card explaining $R = 0.45C + 0.35D + 0.20S$, and the top technical debt hotspots requiring remediation.
     \item \textbf{Searchable File Explorer:} Features real-time substring search, multi-select filters for language and severity, multi-column sorting (by risk score, lines, or complexity), pagination, and quick-launch modal triggers.

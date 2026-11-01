@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  1 NOV 2026 02:32
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  1 NOV 2026 02:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1169,7 +1169,7 @@ LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
 File: iiit manipur.png Graphic file (type png)
 <use iiit manipur.png>
 Package pdftex.def Info: iiit manipur.png  used on input line 85.
-(pdftex.def)             Requested size: 91.04872pt x 70.0665pt.
+(pdftex.def)             Requested size: 108.12054pt x 83.20358pt.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 10.18341pt on input line 88.
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
@@ -1325,20 +1325,38 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
+[15
 
+]
 Overfull \hbox (8.18834pt too wide) in paragraph at lines 12--12
 |[]\T1/fnc/b/n/17.28 Study of Mod-ern Static Anal-y-sis Frame-works and
  []
 
-[15
 
-]
+Overfull \hbox (7.26355pt too wide) in paragraph at lines 16--17
+\T1/fnc/m/n/12 A ma-jor break-through in prac-ti-cal code anal-y-sis was the de
+-vel-op-ment of \T1/fnc/b/n/12 Tree-sitter \T1/fnc/m/n/12 [[]],
+ []
+
+[16]
 Overfull \hbox (1.18419pt too wide) in paragraph at lines 26--27
 []\T1/fnc/b/n/12 Type-4 (Se-man-tic Clones): \T1/fnc/m/n/12 Com-pu-ta-tion-ally
  and se-man-ti-cally equiv-a-lent code
  []
 
-[16]
+
+Overfull \hbox (1.25287pt too wide) in paragraph at lines 34--35
+\T1/fnc/m/n/12 such as Sonar-Qube [[]] re-quire ded-i-cated re-la-tional databa
+ses (e.g., Post-greSQL,
+ []
+
+
+Overfull \hbox (2.036pt too wide) in paragraph at lines 34--35
+\T1/fnc/m/n/12 Or-a-cle), con-tainer-iza-tion run-times, and sub-stan-tial back
+-ground server pro-cesses.
+ []
+
+
 Overfull \hbox (0.55249pt too wide) in paragraph at lines 34--35
 \T1/fnc/m/n/12 For in-di-vid-ual de-vel-op-ers, open-source main-tain-ers, or s
 mall de-vel-op-ment teams
@@ -1654,6 +1672,12 @@ Overfull \hbox (13.03548pt too wide) in paragraph at lines 56--57
 ver-ag-ing rule-based AST trans-
  []
 
+
+Overfull \hbox (5.43576pt too wide) in paragraph at lines 56--57
+\T1/fnc/m/n/12 meth-ods into sub-rou-tines or re-plac-ing ar-row anti-pattern c
+on-di-tion-als with guard
+ []
+
 ) [49] [50
 
 ] [51] (main.aux)
@@ -1692,9 +1716,9 @@ ourier/fourier-ms.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1
 pe1/urw/ncntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts
 /type1/urw/ncntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fo
 nts/type1/urw/ncntrsbk/uncri8a.pfb>
-Output written on main.pdf (52 pages, 399623 bytes).
+Output written on main.pdf (52 pages, 407581 bytes).
 PDF statistics:
- 1159 PDF objects out of 1200 (max. 8388607)
+ 1198 PDF objects out of 1200 (max. 8388607)
  209 named destinations out of 1000 (max. 500000)
  19530 words of extra memory for PDF output out of 20736 (max. 10000000)
 
