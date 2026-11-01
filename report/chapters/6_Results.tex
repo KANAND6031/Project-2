@@ -85,11 +85,11 @@ To evaluate the precision of the Tree-sitter AST complexity calculations, the en
 \toprule
 \textbf{Function / Component Under Test} & \textbf{Expected $M$} & \textbf{Extracted $M$} & \textbf{Max Nesting ($N$)} & \textbf{Parameters} \\
 \midrule
-\texttt{isEven(n)} (Simple predicate) & 1 & 1 & 1 & 1 \\
-\texttt{factorial(n)} (Single branch \& return) & 2 & 2 & 1 & 1 \\
-\texttt{processTransactions()} (Loop + 3 \texttt{if} branches) & 5 & 5 & 2 & 2 \\
-\texttt{validateAuthHeader()} (\&\&, || short-circuits) & 4 & 4 & 1 & 2 \\
-\texttt{legacyParser()} (Nested loops, 7 branches) & 11 & 11 & 4 & 5 \\
+isEven(n) (Simple predicate) & 1 & 1 & 1 & 1 \\
+factorial(n) (Single branch \& return) & 2 & 2 & 1 & 1 \\
+processTransactions() (Loop + 3 if branches) & 5 & 5 & 2 & 2 \\
+validateAuthHeader() (\&\&, || short-circuits) & 4 & 4 & 1 & 2 \\
+legacyParser() (Nested loops, 7 branches) & 11 & 11 & 4 & 5 \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -155,7 +155,7 @@ As highlighted in Table \ref{tab:comparison}, while SonarQube~\cite{sonarqube} p
 
 \clearpage
 \section{Hotspot Detection and Severity Distribution}
-Figure \ref{fig:sev_dist} shows the technical debt severity distribution observed during testing of the multi-language test repository.
+Figure \ref{fig:sev_dist} shows the technical debt severity distribution observed during testing of the full-stack project repository (comprising 131 source files).
 
 \begin{figure}[htbp]
 \centering
@@ -163,39 +163,39 @@ Figure \ref{fig:sev_dist} shows the technical debt severity distribution observe
 \begin{scope}[font=\small\sffamily]
     % Axes
     \draw[->, thick, color=black!70] (0, 0) -- (9.0, 0) node[right] {Severity Category};
-    \draw[->, thick, color=black!70] (0, 0) -- (0, 4.5) node[above] {File Count};
+    \draw[->, thick, color=black!70] (0, 0) -- (0, 4.6) node[above] {File Count};
     
     % Y grid
-    \foreach \y/\val in {1.0/2, 2.0/4, 3.0/6, 4.0/8} {
+    \foreach \y/\val in {1.0/30, 2.0/60, 3.0/90, 4.0/120} {
         \draw[dotted, color=black!20] (0, \y) -- (8.5, \y);
         \draw (0.1, \y) -- (-0.1, \y) node[left] {\val};
     }
     
     % Bars
-    % Low: 6 files (x=1.5, h=3.0)
-    \draw[fill=teal!60!black, draw=teal!80!black, thick] (0.8, 0) rectangle (2.2, 3.0);
-    \node[above, font=\footnotesize\bfseries] at (1.5, 3.0) {6};
+    % Low: 114 files (x=1.5, h=114/30 = 3.80)
+    \draw[fill=teal!60!black, draw=teal!80!black, thick] (0.8, 0) rectangle (2.2, 3.8);
+    \node[above, font=\footnotesize\bfseries] at (1.5, 3.8) {114};
     \node[below=0.2cm, font=\footnotesize\bfseries, align=center] at (1.5, 0) {Low Risk\\ ($0 - 24$)};
     
-    % Moderate: 3 files (x=3.5, h=1.5)
-    \draw[fill=amber!70!black, draw=amber!90!black, thick] (2.8, 0) rectangle (4.2, 1.5);
-    \node[above, font=\footnotesize\bfseries] at (3.5, 1.5) {3};
+    % Moderate: 17 files (x=3.5, h=17/30 = 0.57)
+    \draw[fill=amber!70!black, draw=amber!90!black, thick] (2.8, 0) rectangle (4.2, 0.57);
+    \node[above, font=\footnotesize\bfseries] at (3.5, 0.57) {17};
     \node[below=0.2cm, font=\footnotesize\bfseries, align=center] at (3.5, 0) {Moderate\\ ($25 - 49$)};
     
-    % High: 1 file (x=5.5, h=0.5)
-    \draw[fill=orange!70!black, draw=orange!90!black, thick] (4.8, 0) rectangle (6.2, 0.5);
-    \node[above, font=\footnotesize\bfseries] at (5.5, 0.5) {1};
+    % High: 0 files (x=5.5)
+    \draw[draw=orange!80!black, line width=1.5pt] (4.8, 0) -- (6.2, 0);
+    \node[above, font=\footnotesize\bfseries] at (5.5, 0.05) {0};
     \node[below=0.2cm, font=\footnotesize\bfseries, align=center] at (5.5, 0) {High Risk\\ ($50 - 74$)};
     
-    % Critical: 1 file (x=7.5, h=0.5)
-    \draw[fill=red!70!black, draw=red!90!black, thick] (6.8, 0) rectangle (8.2, 0.5);
-    \node[above, font=\footnotesize\bfseries] at (7.5, 0.5) {1};
+    % Critical: 0 files (x=7.5)
+    \draw[draw=red!80!black, line width=1.5pt] (6.8, 0) -- (8.2, 0);
+    \node[above, font=\footnotesize\bfseries] at (7.5, 0.05) {0};
     \node[below=0.2cm, font=\footnotesize\bfseries, align=center] at (7.5, 0) {Critical\\ ($75 - 100$)};
 \end{scope}
 \end{tikzpicture}
-\caption{Technical Debt Severity Distribution across Analyzed Test Repository}
+\caption{Technical Debt Severity Distribution across Full-Stack Project Repository (131 Total Files)}
 \label{fig:sev_dist}
 \end{figure}
 
-The distribution demonstrates the Pareto principle typical in real-world software engineering: the majority of source files (6 out of 11) remain in the clean, low-risk tier, while technical debt risk is concentrated in a small number of complex hotspot files. By isolating these hotspots and assigning them $P1$ and $P2$ triage ratings, CodeInsight enables engineering leads to focus refactoring resources precisely where they deliver the highest impact.
+The distribution demonstrates the Pareto principle typical in real-world software engineering: the vast majority of source files (114 out of 131, or 87.0\%) remain in the clean, low-risk tier ($0 - 24$), while moderate technical debt is identified across 17 files ($25 - 49$) and zero files escalate to high or critical risk tiers. By isolating these moderate-risk files and assigning them appropriate remediation ratings, CodeInsight enables engineering leads to focus refactoring resources precisely where they deliver the highest impact without generating alert fatigue.
 
