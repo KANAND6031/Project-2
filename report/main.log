@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  1 NOV 2026 12:46
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.9.8)  2 NOV 2026 09:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1165,7 +1165,7 @@ LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 13.39188pt on input line 70.
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
 (Font)              scaled to size 13.39188pt on input line 75.
-<iiit manipur.png, id=290, 256.96pt x 197.73875pt>
+<iiit manipur.png, id=294, 256.96pt x 197.73875pt>
 File: iiit manipur.png Graphic file (type png)
 <use iiit manipur.png>
 Package pdftex.def Info: iiit manipur.png  used on input line 85.
@@ -1185,13 +1185,7 @@ Package hyperref Warning: bookmark level for unknown frontmatter defaults to 0.
 
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
 (Font)              scaled to size 11.15991pt on input line 118.
-
-pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.128 \newpage
-               [1]
+[1]
 File: iiit manipur.png Graphic file (type png)
 <use iiit manipur.png>
 Package pdftex.def Info: iiit manipur.png  used on input line 134.
@@ -1208,8 +1202,7 @@ LaTeX Font Info:    Font shape `FMX/futm/m/n' will be
 (Font)              scaled to size 6.43999pt on input line 135.
 LaTeX Font Info:    Trying to load font information for U+msa on input line 135
 .
-
-(C:\Users\krish\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
+ (C:\Users\krish\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
 (C:\Users\krish\AppData\Local\Programs\MiKTeX\tex/latex/microtype\mt-msa.cfg
@@ -1245,28 +1238,16 @@ LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 16.07027pt on input line 160.
 LaTeX Font Info:    Font shape `T1/fnc/m/it' will be
 (Font)              scaled to size 16.07027pt on input line 160.
-[2]
-Overfull \hbox (14.66292pt too wide) in paragraph at lines 192--193
-\T1/fnc/m/n/12 tech-ni-cal debt pri-or-i-ti-za-tion plat-form en-gi-neered for 
-im-me-di-ate de-vel-oper util-ity. CodeIn-
- []
-
-
-Overfull \hbox (26.7622pt too wide) in paragraph at lines 192--193
-\T1/fnc/m/n/12 syn-tax tree (AST) pars-ing with a Node.js Ex-press or-ches-tra-
-tion back-end, a zero-dependency
- []
-
-[3] [4]
+[2] [3] [4]
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
-(Font)              scaled to size 23.13821pt on input line 226.
+(Font)              scaled to size 23.13821pt on input line 222.
 LaTeX Font Info:    Font shape `T1/fnc/b/n' will be
-(Font)              scaled to size 23.13821pt on input line 226.
+(Font)              scaled to size 23.13821pt on input line 222.
  (main.toc [5
 
 ]
 LaTeX Font Info:    Font shape `T1/fnc/m/sl' will be
-(Font)              scaled to size 10.18341pt on input line 69.
+(Font)              scaled to size 10.18341pt on input line 70.
  [6])
 \tf@toc=\write5
 \openout5 = `main.toc'.
@@ -1296,7 +1277,14 @@ Overfull \hbox (16.22685pt too wide) in paragraph at lines 4--5
 t-cuts, write quick workarounds,
  []
 
-[10
+
+pdfTeX warning (ext4): destination with the same identifier (name{page.1}) has 
+been already used, duplicate ignored
+<to be read again> 
+                   \relax 
+l.12 
+      [1
+
 
 ]
 LaTeX Font Info:    Trying to load font information for TS1+fnc on input line 2
@@ -1312,12 +1300,20 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 
-[11] [12] [13]
+[2] [3] [4]
 Overfull \hbox (4.14742pt too wide) in paragraph at lines 57--68
  [][] 
  []
 
-) (chapters/2_Literature_Survey.tex [14
+[5
+
+]
+Overfull \hbox (2.61914pt too wide) in paragraph at lines 86--87
+\T1/fnc/m/n/12 ol-ogy, in-clud-ing white-box, black-box, and edge-case val-i-da
+-tion against con-trolled
+ []
+
+) (chapters/2_Literature_Survey.tex [6
 
 ]
 Chapter 2.
@@ -1325,7 +1321,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-[15
+[7
 
 ]
 Overfull \hbox (8.18834pt too wide) in paragraph at lines 12--12
@@ -1338,7 +1334,7 @@ Overfull \hbox (7.26355pt too wide) in paragraph at lines 16--17
 -vel-op-ment of \T1/fnc/b/n/12 Tree-sitter \T1/fnc/m/n/12 [[]],
  []
 
-[16]
+[8]
 Overfull \hbox (1.18419pt too wide) in paragraph at lines 26--27
 []\T1/fnc/b/n/12 Type-4 (Se-man-tic Clones): \T1/fnc/m/n/12 Com-pu-ta-tion-ally
  and se-man-ti-cally equiv-a-lent code
@@ -1374,17 +1370,17 @@ Overfull \hbox (33.94038pt too wide) in paragraph at lines 37--38
  with JavaScript/TypeScript
  []
 
-[17]) (chapters/3_Requirement.tex [18]
+[9]) (chapters/3_Requirement.tex [10]
 Chapter 3.
-[19
+[11
 
-] [20]
+] [12]
 Overfull \hbox (0.403pt too wide) in paragraph at lines 38--39
 []\T1/fnc/b/n/12 Cyclomatic Com-plex-ity Anal-y-sis: \T1/fnc/m/n/12 The sys-tem
  shall an-a-lyze sup-ported source
  []
 
-[21]
+[13]
 Overfull \hbox (5.06746pt too wide) in paragraph at lines 58--59
 \T1/fnc/m/n/12 The non-functional re-quire-ments gov-ern the qual-ity at-tribut
 es, op-er-a-tional con-straints,
@@ -1402,7 +1398,7 @@ Overfull \hbox (1.65263pt too wide) in paragraph at lines 65--66
 in-put and pro-cess-ing er-rors grace-
  []
 
-[22]
+[14]
 Overfull \hbox (1.96533pt too wide) in paragraph at lines 73--74
 []\T1/fnc/b/n/12 Technical Fea-si-bil-ity: \T1/fnc/m/n/12 Uti-liz-ing Tree-sitt
 er pro-vides production-grade con-crete
@@ -1420,13 +1416,13 @@ Overfull \hbox (0.60812pt too wide) in paragraph at lines 75--76
 PIs, and can be hosted
  []
 
-) (chapters/4_System_Design.tex [23] [24]
+) (chapters/4_System_Design.tex [15] [16]
 Chapter 4.
 Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `cmss' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-[25
+[17
 
 ]
 Overfull \hbox (8.17015pt too wide) in paragraph at lines 96--97
@@ -1434,15 +1430,15 @@ Overfull \hbox (8.17015pt too wide) in paragraph at lines 96--97
 a-tion en-ters, flows through,
  []
 
-[26]
+[18]
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 7.43994pt on input line 139.
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 5.57996pt on input line 208.
- [27]
+ [19]
 LaTeX Font Info:    Font shape `T1/fnc/m/n' will be
 (Font)              scaled to size 9.29993pt on input line 273.
- [28]
+ [20]
 Overfull \hbox (0.57045pt too wide) in paragraph at lines 331--332
 []\T1/fnc/b/n/12 Sub-process 2.4 (Cal-cu-late Over-all Risk): \T1/fnc/m/n/12 Sy
 n-the-sizes the nor-mal-ized scores
@@ -1462,7 +1458,7 @@ LaTeX Font Info:    Font shape `U/futm/m/n' will be
 (Font)              scaled to size 6.99199pt on input line 402.
 LaTeX Font Info:    Font shape `U/futm/m/n' will be
 (Font)              scaled to size 5.51999pt on input line 402.
-) (chapters/5_Implementation.tex [29] [30]
+) (chapters/5_Implementation.tex [21] [22]
 Chapter 5.
 
 Overfull \hbox (2.13448pt too wide) in paragraph at lines 8--9
@@ -1470,7 +1466,7 @@ Overfull \hbox (2.13448pt too wide) in paragraph at lines 8--9
 re com-bined us-ing a weighted
  []
 
-[31
+[23
 
 ]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
@@ -1493,9 +1489,9 @@ Underfull \hbox (badness 3199) in paragraph at lines 37--38
 ML/fncmi/m/it/10.95 ; []; []; []; [] \FMS/fncm/m/n/10.95 g$
  []
 
-[32
+[24
 
-] [33
+] [25
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 99--100
@@ -1511,23 +1507,23 @@ ncmi/m/it/10.95 ;  N \FMS/fncm/m/n/10.95   []\T1/fnc/m/n/10.95 (\FML/fncmi/m/it
 /10.95 N[]\T1/fnc/m/n/10.95 )\FML/fncmi/m/it/10.95 ;  P \FMS/fncm/m/n/10.95  
  []
 
-[34
+[26
 
 ]
 Overfull \hbox (37.91487pt too wide) in paragraph at lines 145--176
  [][] 
  []
 
-[35] [36]
+[27] [28]
 Overfull \hbox (5.43396pt too wide) in paragraph at lines 197--198
 \T1/fnc/m/n/12 database servers such as Post-greSQL, CodeIn-sight uses a high-p
 erformance in-memory
  []
 
-[37]
+[29]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <12> not available
 (Font)              Font shape `T1/cmtt/m/n' tried instead on input line 207.
-) (chapters/6_Results.tex [38]
+) (chapters/6_Results.tex [30]
 Chapter 6.
 
 Overfull \hbox (17.92194pt too wide) in paragraph at lines 6--7
@@ -1535,9 +1531,9 @@ Overfull \hbox (17.92194pt too wide) in paragraph at lines 6--7
 that dis-crete mod-ules^^Vincluding
  []
 
-[39
+[31
 
-] [40]
+] [32]
 Overfull \hbox (0.10149pt too wide) in paragraph at lines 40--41
 []\T1/fnc/b/n/12 Test Case 1 (AST Met-ric Ex-trac-tion): \T1/fnc/m/n/12 Eval-u-
 ated on \T1/cmtt/m/n/12 complex_functions.cpp
@@ -1560,14 +1556,14 @@ Underfull \hbox (badness 10000) in alignment at lines 71--71
 [][][][][] 
  []
 
-[41] [42]
+[33] [34]
 Underfull \hbox (badness 10000) in alignment at lines 117--117
 [][][][][] 
  []
 
-[43] [44
+[35] [36
 
-]) (chapters/7_Conclusion.tex [45
+]) (chapters/7_Conclusion.tex [37
 
 ]
 Chapter 7.
@@ -1577,7 +1573,7 @@ Overfull \hbox (17.19832pt too wide) in paragraph at lines 15--16
 ech-ni-cal debt into weighted
  []
 
-[46
+[38
 
 ]
 Overfull \hbox (3.1615pt too wide) in paragraph at lines 23--24
@@ -1591,13 +1587,13 @@ Overfull \hbox (3.76216pt too wide) in paragraph at lines 25--26
 m-mer-cial let-ter rat-ings with
  []
 
-[47]
+[39]
 Overfull \hbox (1.58644pt too wide) in paragraph at lines 37--38
 []\T1/fnc/b/n/12 Developer-Centric Aes-thet-ics: \T1/fnc/m/n/12 The dark-mode i
 n-ter-face em-ploys monospaced
  []
 
-[48]
+[40]
 Overfull \hbox (13.03548pt too wide) in paragraph at lines 56--57
 []\T1/fnc/b/n/12 Automated Refac-tor-ing Rec-om-men-da-tions: \T1/fnc/m/n/12 Le
 ver-ag-ing rule-based AST trans-
@@ -1609,21 +1605,21 @@ Overfull \hbox (5.43576pt too wide) in paragraph at lines 56--57
 on-di-tion-als with guard
  []
 
-) [49] [50
+) [41] [42
 
-] [51] (main.aux)
+] [43] (main.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-24>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 19C4D127F8FEFF8F6F13F4A1FC460702;13553.
+(rerunfilecheck)             Checksum: 4D00D5766251A720DE2A4211D4549655;13691.
  ) 
 Here is how much of TeX's memory you used:
- 28562 strings out of 467871
- 529346 string characters out of 5418377
- 977364 words of memory out of 5000000
- 56699 multiletter control sequences out of 15000+600000
+ 28563 strings out of 467871
+ 529317 string characters out of 5418377
+ 977363 words of memory out of 5000000
+ 56698 multiletter control sequences out of 15000+600000
  722520 words of font info for 176 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  84i,13n,94p,1003b,906s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -1645,9 +1641,9 @@ k/uncb8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/ncnt
 rsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/urw/n
 cntrsbk/uncr8a.pfb><C:/Users/krish/AppData/Local/Programs/MiKTeX/fonts/type1/ur
 w/ncntrsbk/uncri8a.pfb>
-Output written on main.pdf (52 pages, 394366 bytes).
+Output written on main.pdf (53 pages, 397247 bytes).
 PDF statistics:
- 1146 PDF objects out of 1200 (max. 8388607)
- 208 named destinations out of 1000 (max. 500000)
- 18506 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 1155 PDF objects out of 1200 (max. 8388607)
+ 210 named destinations out of 1000 (max. 500000)
+ 18514 words of extra memory for PDF output out of 20736 (max. 10000000)
 

@@ -67,3 +67,23 @@ The project was executed over a three-month development lifecycle from August 20
 \end{tabular}
 \end{table}
 
+
+\clearpage
+\section{Report Structure}
+The remainder of this report is organized into seven comprehensive chapters, structured as follows:
+
+\begin{itemize}\setlength{\itemsep}{3pt}\setlength{\parskip}{0pt}
+    \item \textbf{Chapter 1 --- Introduction:} Establishes the context of technical debt in modern software engineering, articulates the problem statement and research motivation, enumerates the primary project objectives, summarizes the technical contributions of CodeInsight, and outlines the developmental timeline.
+
+    \item \textbf{Chapter 2 --- Literature Survey:} Reviews relevant academic literature and commercial tooling in static program analysis, code complexity metrics, and code clone detection. It examines existing systems, analyzes their architectural limitations, and identifies the key research gaps addressed by this work.
+
+    \item \textbf{Chapter 3 --- Requirement Analysis:} Outlines the hardware, software, functional, and non-functional requirements necessary for developing and deploying the platform. It also provides a feasibility analysis and details the selected technology stack across the frontend, backend, and analysis engine.
+
+    \item \textbf{Chapter 4 --- System Design:} Presents the overarching architectural design of CodeInsight, detailing the interaction between the analysis engine, Express orchestration service, and React user interface. It formalizes data flow through Level~0, Level~1, and Level~2 Data Flow Diagrams (DFDs) and illustrates core execution paths using activity diagrams.
+
+    \item \textbf{Chapter 5 --- Implementation:} Details the algorithmic and engineering implementation of CodeInsight. It covers Tree-sitter abstract syntax tree parsing for cyclomatic complexity and nesting depth calculation, token normalization and sliding-window hashing for Type-1 clone detection, the explainable risk-scoring formulation, and the in-memory persistence layer.
+
+    \item \textbf{Chapter 6 --- Testing and Results:} Discusses the multi-level testing methodology, including white-box, black-box, and edge-case validation against controlled fixtures. It presents empirical throughput and memory benchmarks, evaluates clone detection precision and noise filtering, and examines technical debt severity distribution across a full-stack codebase.
+
+    \item \textbf{Chapter 7 --- Conclusion and Future Scope:} Summarizes project achievements against established objectives, reviews system advantages and operational limitations, and outlines promising directions for future development, including dependency graph analysis, Git historical tracking, and automated refactoring recommendations.
+\end{itemize}

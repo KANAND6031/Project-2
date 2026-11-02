@@ -67,7 +67,7 @@
 {\LARGE \textbf{CodeInsight: Automated Codebase Health \&\\[0.3cm] Technical Debt Prioritization Platform}\par}
 
 \vspace{1.0cm}
-{\large A report submitted for the course named Project II (CS4203)\par}
+{\large A report submitted for the course named Project II (CS4202)\par}
 
 \vspace{2.2cm}
 {\large Submitted By\par}
@@ -96,7 +96,7 @@
 % ==========================================
 % FRONT MATTER (Declaration to List of Tables)
 % ==========================================
-\pagenumbering{arabic}
+\pagenumbering{roman}
 \setcounter{page}{1}
 
 % ------------------------------------------
@@ -161,7 +161,7 @@ In this submission, I have expressed my idea in my own words, and I have adequat
 \end{center}
 \vspace{1.2cm}
 
-This is to certify that the project report entitled ``\textbf{CodeInsight: Automated Codebase Health \& Technical Debt Prioritization Platform},'' submitted to the Department of Computer Science and Engineering, Indian Institute of Information Technology Senapati, Manipur in partial fulfilment for the award of degree of Bachelor of Technology in Computer Science and Engineering is a record of bonafide work carried out by \textbf{KRISHNA ANAND} bearing roll number \textbf{230101082} for the course Project II (CS4203).
+This is to certify that the project report entitled ``\textbf{CodeInsight: Automated Codebase Health \& Technical Debt Prioritization Platform},'' submitted to the Department of Computer Science and Engineering, Indian Institute of Information Technology Senapati, Manipur in partial fulfilment for the award of degree of Bachelor of Technology in Computer Science and Engineering is a record of bonafide work carried out by \textbf{KRISHNA ANAND} bearing roll number \textbf{230101082} for the course Project II (CS4202).
 
 \vspace{2.8cm}
 \begin{flushright}
@@ -187,15 +187,11 @@ Signature of the Supervisor\\[0.2cm]
 \end{center}
 \vspace{1.0cm}
 
-As software systems grow and undergo rapid iterative enhancements, code quality frequently degrades under continuous delivery pressures, resulting in technical debt. Left unaddressed, technical debt manifests as high cognitive complexity, deeply nested control logic, and widespread copy-paste code duplication, drastically reducing developer velocity and increasing defect rates. Traditional enterprise code inspection suites impose heavy setup friction, requiring complex relational databases, container runtimes, and substantial memory allocations, while lightweight linters provide isolated style warnings without high-level architectural insight.
+As software systems evolve through continuous development and maintenance, their codebases can accumulate technical debt in the form of complex control logic, repeated code fragments, and oversized source files. These issues can make software more difficult to understand, modify, and maintain. CodeInsight is an automated codebase health analysis and technical debt prioritization platform designed to help developers identify potential maintenance hotspots and make informed refactoring decisions.
 
-This project presents \textbf{CodeInsight}, an automated codebase health analysis and technical debt prioritization platform engineered for immediate developer utility. CodeInsight pairs a high-performance C++ analysis engine powered by Tree-sitter abstract syntax tree (AST) parsing with a Node.js Express orchestration backend, a zero-dependency in-memory persistence layer, and a high-density React/Vite dashboard. The platform extracts exact function-level metrics—including McCabe cyclomatic complexity, nesting depth, and parameter counts—and identifies multi-file Type-1 code clones through a normalized sliding-window token hashing pipeline with maximal forward block expansion.
+The system combines a C++-based static analysis engine with a Node.js and Express backend and a React/Vite frontend. The analysis engine examines supported source files to extract relevant code metrics, including cyclomatic complexity, nesting depth, lines of code, and code duplication. These metrics are normalized into component scores and combined through a weighted risk-scoring model to estimate the relative maintenance risk of individual files. The results are presented through an interactive dashboard that enables users to inspect file-level metrics, compare risk levels, and identify code that may require further review.
 
-To provide clear, actionable guidance, CodeInsight formulates an explainable technical debt risk score:
-\[
-R = 0.45C + 0.35D + 0.20S
-\]
-where structural debt $S$ is decomposed into physical length, nesting depth, and parameter volume ($S = 0.40L + 0.35N + 0.25P$). The platform generates explicit human-readable risk explanations and computes remediation priority tiers ($P1$ to $P4$) to help engineering leads focus refactoring resources effectively. By eliminating external database dependencies, CodeInsight achieves instantaneous startup in under 5 seconds, maintains an operational memory footprint under 120~MB, and achieves an AST parsing and clone detection throughput exceeding 48,000 lines of code per second.
+The current scoring model uses complexity and nesting, code duplication, and file structure as its active dimensions. Since dependency coupling and Git modification activity are not included in the current implementation, the baseline weights are dynamically normalized across the available metrics. The resulting risk score ranges from 0 to 100 and is classified into Low, Moderate, High, and Critical categories. CodeInsight is designed to operate without an external database, simplifying initial setup and deployment. The platform provides an explainable, metric-based approach to technical debt assessment, while its scores represent heuristic estimates rather than validated predictions of software defects. Future enhancements may include dependency analysis, Git history analysis, persistent scan history, and further evaluation against real-world repositories.
 
 % ------------------------------------------
 % ACKNOWLEDGEMENT
@@ -238,7 +234,9 @@ I would also like to express my sincere appreciation to the faculty members and 
 % ==========================================
 % MAIN CHAPTERS (Continuous numbering)
 % ==========================================
-\newpage
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
 
 \input{chapters/1_Introduction.tex}
 \input{chapters/2_Literature_Survey.tex}
@@ -328,4 +326,8 @@ Evan You.
 \end{thebibliography}
 
 \end{document}
+
+
+
+
 
