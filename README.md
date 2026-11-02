@@ -1,4 +1,4 @@
-# CodeInsight: Automated Codebase Health & Technical Debt Prioritization Platform
+# CodeInsight: A Platform for Code Quality Analysis and Technical Debt Prioritization
 
 CodeInsight is a developer-focused static analysis platform that analyzes source repositories to identify technical debt hotspots, high-complexity functions, deep nesting, duplicate code blocks, and cyclic dependencies.
 

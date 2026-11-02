@@ -1,7 +1,7 @@
 {
   "name": "codeinsight",
   "version": "1.0.0",
-  "description": "CodeInsight: Automated Codebase Health & Technical Debt Prioritization Platform",
+  "description": "CodeInsight: A Platform for Code Quality Analysis and Technical Debt Prioritization",
   "scripts": {
     "start": "node backend/src/server.js",
     "dev:backend": "npm run dev --prefix backend",

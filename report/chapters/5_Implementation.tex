@@ -1,7 +1,7 @@
 \chapter{Implementation}
 
 \section{Introduction}
-Implementation is the phase in which the proposed system architecture and design are converted into a working software application. This chapter describes the implementation of CodeInsight, an automated codebase health and technical debt prioritization platform.
+Implementation is the phase in which the proposed system architecture and design are converted into a working software application. This chapter describes the implementation of CodeInsight, a platform for code quality analysis and technical debt prioritization.
 
 The system is developed using a modular architecture consisting of a React-based frontend, a Node.js and Express backend, and a C++ analysis engine. The frontend provides the user interface for repository selection and result visualization, while the backend coordinates repository scanning and communication with the analysis engine. The C++ engine performs source code analysis and extracts relevant metrics.
 
@@ -121,7 +121,13 @@ Before parsing ASTs, the engine performs lexical state-machine scanning to compu
 \subsection{Tree-sitter Grammar Integration and AST Traversal}
 The Tree-sitter parser compiles grammar definitions into fast state tables. For C and C++, the parser recognizes function declarations, constructor definitions, and member methods. For JavaScript and TypeScript, the engine traverses function declarations, function expressions, object method definitions, and ES6 arrow functions.
 
-During recursive subtree traversal, cyclomatic complexity increments by 1 whenever an AST node matches a branching decision point. In addition to standard control-flow keywords (\texttt{if}, \texttt{for}, \texttt{while}, \texttt{do}, \texttt{case}), the engine explicitly counts short-circuit boolean operators (\texttt{\&\&}, \texttt{||}, and nullish coalescing \texttt{??}) because each short-circuit creates a distinct branch in the program's control-flow graph. Maximum nesting depth is tracked by maintaining a stack of enclosing compound statement blocks.
+During recursive subtree traversal, cyclomatic complexity increments by 1 whenever an AST node matches a branching decision point. In addition to standard control-flow keywords (\texttt{if}, \texttt{for}, \texttt{while}, \texttt{do}, \texttt{case}), the engine explicitly counts short-circuit boolean operators (\texttt{\&\&}, \texttt{||}, and nullish coalescing \texttt{??}) because each short-circuit creates a distinct branch in the program's control-flow graph. Maximum nesting depth is tracked by maintaining a stack of enclosing compound statement blocks. Formally, the AST-derived McCabe cyclomatic complexity $M$ for each procedure is computed as:
+\begin{equation}
+\label{eq:mccabe_ast}
+\boxed{M = 1 + D}
+\end{equation}
+\formula{McCabe Cyclomatic Complexity AST Formulation}
+where $D$ denotes the total number of branching predicate decision points identified within the function syntax tree.
 
 \section{Technical Debt Scoring Engine and Explainable Risk Heuristics}
 To eliminate the black-box nature of commercial code rating tools, CodeInsight computes technical debt using a transparent, explainable mathematical formulation:
@@ -129,11 +135,13 @@ To eliminate the black-box nature of commercial code rating tools, CodeInsight c
 \label{eq:unified_risk}
 \boxed{R = 0.45C + 0.35D + 0.20S}
 \end{equation}
+\formula{Unified Technical Debt Risk Score}
 where the structural risk score $S$ is computed from physical length ($L$), maximum nesting depth ($N$), and maximum parameter count ($P$):
 \begin{equation}
 \label{eq:structural_risk}
 \boxed{S = 0.40L + 0.35N + 0.25P}
 \end{equation}
+\formula{Composite Structural Risk Score}
 
 Table \ref{tab:risk_thresholds} summarizes the empirical threshold mappings used to convert raw extracted metrics into normalized sub-scores ($0$ to $100$).
 
@@ -183,6 +191,14 @@ Based on the calculated risk score $R$, each file is classified into a clear sev
     \item \textbf{Critical Risk ($75 \le R \le 100$):} Severe technical debt hotspot; top priority candidate for decomposition.
 \end{itemize}
 
+To assist engineering leads in prioritizing maintenance tasks, the platform computes an explainable remediation priority score:
+\begin{equation}
+\label{eq:priority_score}
+\boxed{\text{PriorityScore} = \min\left(100, \; \frac{R \times \text{ImpactMultiplier}}{\text{EffortFactor}}\right)}
+\end{equation}
+\formula{Remediation Priority Score}
+where $\text{ImpactMultiplier} \in \{1.0, 1.3\}$ elevates files containing high-complexity functions ($M_{\max} > 15$) and $\text{EffortFactor} \in \{1.0, 1.5\}$ accounts for refactoring friction in large files ($\text{LOC} > 300$).
+
 \section{Implementation of Exact Token Clone Detection}
 Code duplication detection is implemented using normalized sliding-window token hashing. The detector processes source files in three phases:
 \begin{enumerate}
@@ -190,6 +206,14 @@ Code duplication detection is implemented using normalized sliding-window token 
     \item \textbf{Sliding Window Rolling Hashing:} A sliding window of size $K = 5$ lines moves across normalized lines. To eliminate false-positive duplicate clusters caused by trivial syntax (such as repeated closing braces or boilerplate declarations), blocks with fewer than $\tau = 30$ non-whitespace characters are discarded. Valid blocks are hashed using a 64-bit rolling hash.
     \item \textbf{Maximal Clone Expansion and Subsumption Filtering:} When identical hash keys occur across multiple file locations, the algorithm expands matching lines forward line-by-line until a mismatch occurs. A subsumption filter removes shorter fragments that are completely contained within longer clone blocks, clustering the resulting fragments into unique duplicate groups.
 \end{enumerate}
+
+For an analyzed source file $F$ containing $N$ total lines of code, the duplication percentage is formally evaluated as:
+\begin{equation}
+\label{eq:duplication_pct}
+\boxed{\text{DuplicationPercentage}(F) = \frac{|D(F)|}{N} \times 100\%}
+\end{equation}
+\formula{File Code Duplication Percentage}
+where $D(F)$ denotes the set of unique line indices participating in one or more identified clone blocks.
 
 \section{In-Memory Storage, Asynchronous Scan Queue, and Developer Dashboard}
 
