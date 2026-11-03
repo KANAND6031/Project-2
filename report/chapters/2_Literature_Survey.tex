@@ -37,6 +37,47 @@ Despite the widespread availability of static analysis tools, development teams 
     \item \textbf{Language Fragmentation:} Developers working in multi-language or full-stack environments (for example, combining C++ native modules with JavaScript/TypeScript services) are typically forced to configure multiple disjoint static analysis tools, each with its own output format, configuration file, and reporting structure.
 \end{itemize}
 
+Table \ref{tab:comparison_systems} provides a structured comparative analysis of existing static analysis paradigms, detailing their methodologies, primary operational limitations, and how CodeInsight addresses each research gap.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\caption{Comparison of Existing Systems, Methodologies, Limitations, and CodeInsight Solutions}
+\label{tab:comparison_systems}
+\vspace{0.2cm}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{@{}p{2.4cm}p{3.2cm}p{4.2cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Existing System} & \textbf{What They Done} & \textbf{Their Limitations} & \textbf{How CodeInsight Solves Them} \\
+\midrule
+\textbf{Enterprise Suites} \newline (\textit{SonarQube}) &
+Monitors multi-language quality, bugs, and maintainability (SQALE). &
+Heavy setup (requires DB, $\ge 2$~GB RAM); opaque letter grades ($A$--$E$). &
+Zero-setup in-memory engine ($<125$~MB RAM); explainable formula ($R = 0.45C + 0.35D + 0.20S$). \\
+\addlinespace
+\textbf{Linters} \newline (\textit{ESLint, Flake8}) &
+Checks syntax, formatting, and style rules via local ASTs. &
+Alert fatigue from unweighted warnings; no clone detection or risk score. &
+Actionable $P1$--$P4$ priority triage; integrates multi-file clone detection. \\
+\addlinespace
+\textbf{Compiler Tools} \newline (\textit{Clang-Tidy}) &
+Deep compiler-level AST matching and semantic type diagnostics. &
+Requires full build setup (\texttt{compile\_commands.json}); slow; C/C++ only. &
+Build-free Tree-sitter CST parsing; multi-language; fast ($\sim$48,500 LOC/s). \\
+\addlinespace
+\textbf{Clone Detectors} \newline (\textit{CCFinder, CloneDR}) &
+Token sliding window or AST subtree matching for duplicate code. &
+High complexity ($O(N^2)$); false alarms on boilerplate braces; no debt score. &
+Sliding-window hashing ($K=5$) with boilerplate filter ($\tau=30$) and debt scoring. \\
+\addlinespace
+\textbf{Metric Tools} \newline (\textit{Radon, Understand}) &
+Calculates McCabe complexity, Halstead volume, and physical LOC. &
+Raw numerical dumps without maintainability context or prioritization. &
+Normalized sub-scores ($C,D,S$), severity tiers, and clear risk explanations. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 \section{Summary of Identified Research Gaps}
 Our comprehensive literature survey reveals a distinct research and tooling gap between lightweight, shallow linters and heavyweight enterprise platforms. Specifically:
 \begin{enumerate}

@@ -2,12 +2,12 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {4.1}{\ignorespaces System Architecture Flow of CodeInsight}}{17}{figure.caption.14}%
-\contentsline {figure}{\numberline {4.2}{\ignorespaces DFD Level 0 (Context Diagram)}}{19}{figure.caption.15}%
-\contentsline {figure}{\numberline {4.3}{\ignorespaces Data Flow Diagram (DFD Level 1) of the System}}{19}{figure.caption.16}%
-\contentsline {figure}{\numberline {4.4}{\ignorespaces DFD Level 2 (Decomposition of Technical Debt Scoring Process)}}{20}{figure.caption.17}%
-\contentsline {figure}{\numberline {4.5}{\ignorespaces Activity Diagram of the Scan and Analysis Workflow}}{22}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.1}{\ignorespaces System Architecture Flow of CodeInsight}}{18}{figure.caption.15}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces DFD Level 0 (Context Diagram)}}{20}{figure.caption.16}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Data Flow Diagram (DFD Level 1) of the System}}{20}{figure.caption.17}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces DFD Level 2 (Decomposition of Technical Debt Scoring Process)}}{21}{figure.caption.18}%
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Activity Diagram of the Scan and Analysis Workflow}}{23}{figure.caption.19}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {6.1}{\ignorespaces Technical Debt Severity Distribution across Full-Stack Project Repository (131 Total Files)}}{37}{figure.caption.23}%
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Technical Debt Severity Distribution across Full-Stack Project Repository (131 Total Files)}}{38}{figure.caption.24}%
 \addvspace {10\p@ }

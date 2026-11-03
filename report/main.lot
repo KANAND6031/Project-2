@@ -1,13 +1,14 @@
 \addvspace {10\p@ }
 \contentsline {table}{\numberline {1.1}{\ignorespaces Project Implementation Timeline}}{5}{table.caption.12}%
 \addvspace {10\p@ }
+\contentsline {table}{\numberline {2.1}{\ignorespaces Comparison of Existing Systems, Methodologies, Limitations, and CodeInsight Solutions}}{10}{table.caption.13}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {3.1}{\ignorespaces CodeInsight Technology Stack}}{16}{table.caption.13}%
+\contentsline {table}{\numberline {3.1}{\ignorespaces CodeInsight Technology Stack}}{17}{table.caption.14}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {5.1}{\ignorespaces Technical Debt Scoring Thresholds and Weight Distributions}}{28}{table.caption.19}%
+\contentsline {table}{\numberline {5.1}{\ignorespaces Technical Debt Scoring Thresholds and Weight Distributions}}{29}{table.caption.20}%
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {6.1}{\ignorespaces Runtime Performance and Throughput Benchmarking}}{35}{table.caption.20}%
-\contentsline {table}{\numberline {6.2}{\ignorespaces Complexity and Nesting Depth Metrics on Test Fixture Suite}}{35}{table.caption.21}%
-\contentsline {table}{\numberline {6.3}{\ignorespaces Duplicate Clone Detection Verification on Controlled Clones}}{36}{table.caption.22}%
+\contentsline {table}{\numberline {6.1}{\ignorespaces Runtime Performance and Throughput Benchmarking}}{36}{table.caption.21}%
+\contentsline {table}{\numberline {6.2}{\ignorespaces Complexity and Nesting Depth Metrics on Test Fixture Suite}}{36}{table.caption.22}%
+\contentsline {table}{\numberline {6.3}{\ignorespaces Duplicate Clone Detection Verification on Controlled Clones}}{37}{table.caption.23}%
 \addvspace {10\p@ }
